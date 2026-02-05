@@ -144,13 +144,7 @@ const Header = () => {
           <div className="nav-main-content">
             {/* Logo */}
             <Link to="/" className="logo-modern" onClick={closeMobileMenu}>
-              <div className="logo-icon-modern">
-                <span>AAZ</span>
-              </div>
-              <div className="logo-text-modern">
-                <h1>AAZ International</h1>
-                <p>Medical Solutions</p>
-              </div>
+              <img src="/logo.png" alt="AAZ International" className="logo-image" />
             </Link>
 
             {/* Desktop Navigation with Dropdowns */}

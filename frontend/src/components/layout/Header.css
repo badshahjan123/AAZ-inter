@@ -8,8 +8,9 @@
   position: sticky;
   top: 0;
   z-index: var(--z-index-sticky);
-  background-color: var(--color-white);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E6EEF4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 /* Main Navigation Bar */
@@ -30,7 +31,6 @@
 .logo-modern {
   display: flex;
   align-items: center;
-  gap: 14px;
   text-decoration: none;
   transition: transform 0.3s ease;
 }
@@ -39,62 +39,15 @@
   transform: scale(1.02);
 }
 
-.logo-icon-modern {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, #00BCD4 0%, #26C6DA 100%);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 188, 212, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.logo-icon-modern::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-  transform: rotate(45deg);
-  animation: shine 3s infinite;
-}
-
-@keyframes shine {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-.logo-icon-modern span {
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--color-white);
-  letter-spacing: -1px;
-  position: relative;
-  z-index: 1;
-}
-
-.logo-text-modern h1 {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--color-gray-900);
-  margin: 0;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
-}
-
-.logo-text-modern p {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary);
-  margin: 0;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.logo-image {
+  height: 85px;
+  width: 85px;
+  object-fit: contain;
+  border-radius: 50%;
+  background-color: #e0f7fa; /* Light Cyan/Teal Tint */
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.15); /* Colored shadow */
+  border: 1px solid rgba(0, 188, 212, 0.1); /* Subtle Teal Border */
+  padding: 8px;
 }
 
 /* Navigation Links - Modern Pills with Dropdowns */
@@ -558,8 +511,9 @@
     display: block;
   }
 
-  .logo-text-modern {
-    display: none;
+  .logo-image {
+    height: 55px;
+    width: 55px;
   }
 
   .nav-main-content {

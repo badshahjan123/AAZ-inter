@@ -189,16 +189,20 @@ app.use(errorHandler);
 // ============================================
 // SERVER STARTUP
 // ============================================
+const http = require('http');
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log("=========================================");
-  console.log(`🔒 Secure Server Running`);
-  console.log(`📍 Mode: ${process.env.NODE_ENV}`);
-  console.log(`🚀 Port: ${PORT}`);
-  console.log(`🛡️  Security: ENABLED`);
-  console.log("=========================================");
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log("=========================================");
+    console.log(`🔒 Secure Server Running`);
+    console.log(`📍 Mode: ${process.env.NODE_ENV}`);
+    console.log(`🚀 Port: ${PORT}`);
+    console.log(`🛡️  Security: ENABLED`);
+    console.log("=========================================");
+  });
+}
 
 // ============================================
 // SOCKET.IO (Secure Configuration)
