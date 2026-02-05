@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X, DollarSign, Archive, Tag } from 'lucide-react';
-import { api } from '../../../../../../../../../../config/api';
+import { api } from '../../../config/api';
 
 const ProductForm = () => {
   const { id } = useParams();
@@ -87,7 +87,7 @@ const ProductForm = () => {
         return;
       }
 
-      const res = await fetch(api('/api/upload', {
+      const res = await fetch(api('/api/upload'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useInactivityLogout from '../../hooks/useInactivityLogout';
-import { api } from '../../../../../../../../../config/api';
+import { api } from '../../config/api';
 
 const AdminAuthContext = createContext();
 
@@ -30,7 +30,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(api('/api/auth/admin/login', {
+      const response = await fetch(api('/api/auth/admin/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

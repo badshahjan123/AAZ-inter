@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Truck, Package, User, MapPin, CreditCard } from 'lucide-react';
-import { api } from '../../../../../../../../../../config/api';
+import { api } from '../../../config/api';
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -18,7 +18,7 @@ const OrderDetail = () => {
   const fetchOrder = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(api(`/api/orders/${id}`, {
+      const response = await fetch(api(`/api/orders/${id}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -38,7 +38,7 @@ const OrderDetail = () => {
     try {
       setUpdating(true);
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(api(`/api/orders/${id}/status`, {
+      const response = await fetch(api(`/api/orders/${id}/status`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

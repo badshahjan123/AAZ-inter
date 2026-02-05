@@ -4,7 +4,7 @@ import { Filter } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
 import Button from '../components/common/Button';
 import './Products.css';
-import { api } from '../../../../../../../../config/api';
+import { api } from '../config/api';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();

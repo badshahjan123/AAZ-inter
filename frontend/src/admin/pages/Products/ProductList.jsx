@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Edit, Trash2, Plus, Search, Package, CheckCircle, XCircle } from 'lucide-react';
-import { api } from '../../../../../../../../../../config/api';
+import { api } from '../../../config/api';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -41,7 +41,7 @@ const ProductList = () => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(api(`/api/products/${id}`, {
+      const response = await fetch(api(`/api/products/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

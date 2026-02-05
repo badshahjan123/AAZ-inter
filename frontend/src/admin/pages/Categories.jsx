@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit, Tag } from 'lucide-react';
-import { api } from '../../../../../../../../../config/api';
+import { api } from '../../config/api';
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -61,7 +61,7 @@ const Categories = () => {
     if (!window.confirm('Delete this category?')) return;
     const token = localStorage.getItem('adminToken');
     try {
-      await fetch(api(`/api/categories/${id}`, {
+      await fetch(api(`/api/categories/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

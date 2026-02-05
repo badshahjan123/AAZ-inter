@@ -15,7 +15,7 @@ import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import { sendWhatsAppMessage, whatsappMessages } from "../../utils/helpers";
 import "./Header.css";
-import { api } from '../../../../../../../../../config/api';
+import { api } from '../../config/api';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -136,7 +136,7 @@ const Header = () => {
       dropdown: false,
     },
   ];
-import { api } from '../../../../../../../../../config/api';
+import { api } from '../../config/api';
 
   return (
     <header className="header-modern">

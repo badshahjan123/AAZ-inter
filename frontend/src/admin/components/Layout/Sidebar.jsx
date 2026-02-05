@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useAdminAuth } from "../../context/AdminAuth";
 import { useSocket } from "../../../context/SocketContext";
-import { api } from '../../../../../../../../../../config/api';
+import { api } from '../../../config/api';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -47,7 +47,7 @@ const Sidebar = () => {
   const fetchPendingCount = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(api("/api/orders", {
+      const res = await fetch(api("/api/orders"), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -71,7 +71,7 @@ const Sidebar = () => {
   const fetchPendingPayments = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(api("/api/payments/pending", {
+      const res = await fetch(api("/api/payments/pending"), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

@@ -23,7 +23,7 @@ const Wishlist = () => {
 
   const fetchWishlist = async () => {
     try {
-      const res = await fetch(api('/api/wishlist', {
+      const res = await fetch(api('/api/wishlist'), {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       const data = await res.json();
@@ -37,7 +37,7 @@ const Wishlist = () => {
 
   const removeFromWishlist = async (productId) => {
     try {
-      await fetch(api(`/api/wishlist/${productId}`, {
+      await fetch(api(`/api/wishlist/${productId}`), {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.token}` }
       });

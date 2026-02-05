@@ -4,7 +4,7 @@ import { ArrowRight, Search, Package, Heart, TrendingUp, Award, ShoppingBag, Che
 import ProductCard from '../components/product/ProductCard';
 import Button from '../components/common/Button';
 import './Home.css';
-import { api } from '../../../../../../../../config/api';
+import { api } from '../config/api';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -18,8 +18,8 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const [productsRes, categoriesRes] = await Promise.all([
-          fetch(api('/api/products'),
-          fetch(api('/api/categories')
+          fetch(api('/api/products')),
+          fetch(api('/api/categories'))
         ]);
         
         const productsData = await productsRes.json();
@@ -111,7 +111,6 @@ const Home = () => {
       description: 'On-site support and comprehensive after-sales services'
     }
   ];
-import { api } from '../../../../../../../../config/api';
 
   const services = [
     {
@@ -135,7 +134,7 @@ import { api } from '../../../../../../../../config/api';
       description: 'Consultation and customized equipment solutions for healthcare facilities'
     }
   ];
-import { api } from '../../../../../../../../config/api';
+
 
   if (loading) return <div className="text-center py-20">Loading...</div>;
 

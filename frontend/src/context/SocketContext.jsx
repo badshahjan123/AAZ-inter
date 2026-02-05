@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import { api } from './config/api';
+import { api } from '../config/api';
 
 const SocketContext = createContext();
 
@@ -20,7 +20,7 @@ export const SocketProvider = ({ children }) => {
     // Check if backend is running before connecting
     const checkBackend = async () => {
       try {
-        const response = await fetch(api('/api/categories', { 
+        const response = await fetch(api('/api/categories'), { 
           method: 'HEAD',
           signal: AbortSignal.timeout(2000)
         });

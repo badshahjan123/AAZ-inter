@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react';
 import Button from '../components/common/Button';
 import './Login.css';
-import { api } from '../../../../../../../../config/api';
+import { api } from '../config/api';
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -30,7 +30,7 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(api(`/api/auth/reset-password/${token}`, {
+      const response = await fetch(api(`/api/auth/reset-password/${token}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: formData.password }),

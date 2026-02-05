@@ -21,7 +21,7 @@ import { sendWhatsAppMessage, whatsappMessages } from '../utils/helpers';
 import Button from '../components/common/Button';
 import ProductCard from '../components/product/ProductCard';
 import './ProductDetail.css';
-import { api } from '../../../../../../../../config/api';
+import { api } from '../config/api';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -106,7 +106,7 @@ const ProductDetail = () => {
 
   const checkWishlistStatus = async (productId) => {
     try {
-      const res = await fetch(api(`/api/wishlist/check/${productId}`, {
+      const res = await fetch(api(`/api/wishlist/check/${productId}`), {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       const data = await res.json();
@@ -125,13 +125,13 @@ const ProductDetail = () => {
     setWishlistLoading(true);
     try {
       if (isInWishlist) {
-        await fetch(api(`/api/wishlist/${product._id}`, {
+        await fetch(api(`/api/wishlist/${product._id}`), {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${user.token}` }
         });
         setIsInWishlist(false);
       } else {
-        await fetch(api('/api/wishlist', {
+        await fetch(api('/api/wishlist'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ const ProductDetail = () => {
 
     setSubmittingReview(true);
     try {
-      const res = await fetch(api('/api/reviews', {
+      const res = await fetch(api('/api/reviews'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

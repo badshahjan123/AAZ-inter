@@ -6,7 +6,7 @@ import { useSocket } from '../context/SocketContext';
 import { User, Mail, LogOut, Save, Package, ShoppingCart, ArrowRight, Building, Phone, MapPin, CreditCard } from 'lucide-react';
 import Button from '../components/common/Button';
 import './Profile.css';
-import { api } from '../../../../../../../../config/api';
+import { api } from '../config/api';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const Profile = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(api('/api/orders/myorders', {
+      const response = await fetch(api('/api/orders/myorders'), {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },

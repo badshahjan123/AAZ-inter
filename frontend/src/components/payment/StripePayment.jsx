@@ -8,7 +8,7 @@ import {
 } from '@stripe/react-stripe-js';
 import Button from '../common/Button';
 import { CreditCard, ShieldCheck, AlertCircle } from 'lucide-react';
-import { api } from '../../../../../../../../../config/api';
+import { api } from '../../config/api';
 
 const CheckoutForm = ({ order, onPaymentSuccess }) => {
   const stripe = useStripe();
@@ -21,7 +21,7 @@ const CheckoutForm = ({ order, onPaymentSuccess }) => {
     // Create PaymentIntent as soon as the component loads
     const createIntent = async () => {
       try {
-        const response = await fetch(api('/api/stripe/create-payment-intent', {
+        const response = await fetch(api('/api/stripe/create-payment-intent'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const CheckoutForm = ({ order, onPaymentSuccess }) => {
       
       // Confirm on backend
       try {
-        const confirmResponse = await fetch(api('/api/stripe/confirm-payment', {
+        const confirmResponse = await fetch(api('/api/stripe/confirm-payment'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Mail, Trash2, Calendar, Search } from 'lucide-react';
-import { api } from '../../../../../../../../../config/api';
+import { api } from '../../config/api';
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
@@ -22,7 +22,7 @@ const Customers = () => {
         return;
       }
 
-      const response = await fetch(api('/api/users', {
+      const response = await fetch(api('/api/users'), {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -54,7 +54,7 @@ const Customers = () => {
     if (!window.confirm('Delete this customer?')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(api(`/api/users/${id}`, {
+      const response = await fetch(api(`/api/users/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
