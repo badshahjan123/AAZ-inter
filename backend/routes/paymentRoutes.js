@@ -1,55 +1,89 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 const {
-  createPaymentIntent,
-  confirmPayment,
-  handleStripeWebhook,
+  uploadPaymentProof,
+  getPendingPayments,
+  approvePayment,
+  rejectPayment,
   getPaymentStatus,
-} = require('../controllers/paymentController');
-const { protect } = require('../middleware/authMiddleware');
-const { validateObjectId } = require('../middleware/validation');
-
-/**
- * SECURE PAYMENT ROUTES
- * 
- * IMPORTANT SECURITY NOTES:
- * - Webhook endpoint MUST be RAW BODY (not JSON parsed)
- * - All other endpoints require authentication
- * - Payment confirmation comes from webhook only
- */
+  getBankDetails,
+} = require("../controllers/paymentController");
+const { protect, adminOnly } = require("../middleware/authMiddleware");
 
 // ============================================
-// WEBHOOK ENDPOINT (Must come BEFORE express.json())
+// CREATE UPLOAD DIRECTORY IF NOT EXISTS
 // ============================================
-// This is handled separately in server.js with raw body
+const uploadDir = "uploads/payment-proofs/";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log("✅ Created uploads/payment-proofs/ directory");
+}
 
 // ============================================
-// AUTHENTICATED PAYMENT ENDPOINTS
+// MULTER CONFIGURATION (File Upload)
+// ============================================
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, "proof-" + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
+
+// ============================================
+// PUBLIC ROUTES
 // ============================================
 
 /**
- * Create Payment Intent
- * User initiates payment, get client secret for Stripe
+ * Get bank account details
  */
-router.post('/create-payment-intent', protect, createPaymentIntent);
+router.get("/bank-details", getBankDetails);
 
 /**
- * Confirm Payment (Client-side feedback only)
- * NOT the source of truth - webhook is
+ * Get payment status for an order
  */
-router.post('/confirm-payment', protect, confirmPayment);
+router.get("/status/:orderId", getPaymentStatus);
 
 /**
- * Get Payment Status
- * Check payment status for an order
+ * Upload payment proof (bank transfer)
  */
-router.get('/status/:orderId', protect, validateObjectId('orderId'), getPaymentStatus);
+router.post("/upload-proof", upload.single("screenshot"), uploadPaymentProof);
+
+// ============================================
+// ADMIN ROUTES
+// ============================================
 
 /**
- * Webhook Handler (Stripe -> Server)
- * THIS IS THE SOURCE OF TRUTH FOR PAYMENT CONFIRMATION
- * Do NOT apply protect middleware - Stripe needs access
+ * Get pending payments (admin only)
  */
-router.post('/webhook', handleStripeWebhook);
+router.get("/pending", protect, adminOnly, getPendingPayments);
+
+/**
+ * Approve payment (admin only)
+ */
+router.post("/approve", protect, adminOnly, approvePayment);
+
+/**
+ * Reject payment (admin only)
+ */
+router.post("/reject", protect, adminOnly, rejectPayment);
 
 module.exports = router;

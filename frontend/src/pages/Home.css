@@ -6,15 +6,19 @@
 /* Hero Section - Clean & Professional */
 .hero-modern {
   background: linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%);
-  padding: 60px 0;
+  padding: 80px 0 60px;
   position: relative;
   overflow: hidden;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
 }
 
 .hero-modern-content {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   text-align: center;
+  padding: 0 var(--spacing-lg);
 }
 
 .hero-text {
@@ -23,17 +27,17 @@
 }
 
 .hero-modern-title {
-  font-size: 2.75rem;
+  font-size: 3rem;
   font-weight: 900;
   line-height: 1.2;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   color: var(--color-navy);
 }
 
 .hero-modern-highlight {
   color: var(--color-primary);
   display: block;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 /* Search Bar - Modern & Clean */
@@ -43,27 +47,28 @@
   background-color: var(--color-white);
   border-radius: 50px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  margin-bottom: 28px;
-  max-width: 600px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  margin-bottom: 32px;
+  max-width: 650px;
   margin-left: auto;
   margin-right: auto;
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .search-category {
-  padding: 14px 20px;
+  padding: 16px 24px;
   background-color: var(--color-gray-50);
   border-right: 1px solid var(--color-gray-200);
   font-size: 14px;
   color: var(--color-gray-700);
   white-space: nowrap;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .search-input {
   flex: 1;
-  padding: 14px 20px;
+  padding: 16px 24px;
   border: none;
   outline: none;
   font-size: 15px;
@@ -75,7 +80,7 @@
 }
 
 .search-btn {
-  padding: 14px 24px;
+  padding: 16px 28px;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   border: none;
   color: var(--color-white);
@@ -88,12 +93,67 @@
 
 .search-btn:hover {
   transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.4);
 }
 
 .hero-modern-actions {
   display: flex;
-  gap: 12px;
+  gap: 18px;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.hero-modern-actions button,
+.hero-modern-actions .btn {
+  padding: 14px 32px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  min-width: 160px !important;
+  max-width: 200px !important;
+  height: 48px !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  white-space: nowrap !important;
+}
+
+.hero-modern-actions button svg,
+.hero-modern-actions .btn svg {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+/* Primary Button - Browse Products */
+.hero-modern-actions .btn-primary,
+.hero-modern-actions button[class*="primary"] {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
+}
+
+.hero-modern-actions .btn-primary:hover,
+.hero-modern-actions button[class*="primary"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4) !important;
+}
+
+/* Secondary Button - Contact Us */
+.hero-modern-actions .btn-outline,
+.hero-modern-actions button[class*="outline"] {
+  background: white !important;
+  border: 2px solid var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+.hero-modern-actions .btn-outline:hover,
+.hero-modern-actions button[class*="outline"]:hover {
+  background: var(--color-primary) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2) !important;
 }
 
 /* Features Section - Clean Grid */
@@ -479,10 +539,58 @@
 
 .cta-actions-modern {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
+  align-items: center;
 }
+
+.cta-actions-modern button,
+.cta-actions-modern .btn {
+  padding: 14px 32px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  min-width: 180px !important;
+  max-width: 220px !important;
+  height: 48px !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  white-space: nowrap !important;
+}
+
+/* Primary CTA Button */
+.cta-actions-modern .btn-primary,
+.cta-actions-modern button[class*="primary"] {
+  background: white !important;
+  border: none !important;
+  color: var(--color-primary) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.cta-actions-modern .btn-primary:hover,
+.cta-actions-modern button[class*="primary"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+  background: #f8f9fa !important;
+}
+
+/* Secondary CTA Button */
+.cta-actions-modern .btn-secondary,
+.cta-actions-modern button[class*="secondary"] {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid white !important;
+  color: white !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.cta-actions-modern .btn-secondary:hover,
+.cta-actions-modern button[class*="secondary"]:hover {
+  background: white !important;
+  color: var(--color-primary) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
 
 /* Responsive Design */
 @media (max-width: 1024px) {
@@ -518,13 +626,17 @@
   }
 
   .hero-modern-actions {
-    flex-direction: column;
-    width: 100%;
+    gap: 12px;
   }
 
+  .hero-modern-actions button,
   .hero-modern-actions .btn {
-    width: 100%;
+    min-width: 140px !important;
+    max-width: 180px !important;
+    padding: 12px 24px !important;
+    font-size: 14px !important;
   }
+
 
   .features-grid-modern {
     grid-template-columns: 1fr;
@@ -566,12 +678,16 @@
     font-size: 15px;
   }
 
+
   .cta-actions-modern {
-    flex-direction: column;
-    width: 100%;
+    gap: 12px;
   }
 
+  .cta-actions-modern button,
   .cta-actions-modern .btn {
-    width: 100%;
+    min-width: 150px !important;
+    max-width: 200px !important;
+    padding: 12px 24px !important;
+    font-size: 14px !important;
   }
 }

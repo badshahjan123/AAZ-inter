@@ -61,17 +61,13 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'", "https://js.stripe.com"],
-        connectSrc: [
-          "'self'",
-          "http://localhost:5000",
-          "https://api.stripe.com",
-        ],
+        scriptSrc: ["'self'"],
+        connectSrc: ["'self'", "http://localhost:5000"],
         imgSrc: ["'self'", "data:", "https:", "http://localhost:5000"],
         fontSrc: ["'self'"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
-        frameSrc: ["'self'", "https://js.stripe.com"],
+        frameSrc: ["'self'"],
       },
     },
     crossOriginEmbedderPolicy: false,
@@ -115,19 +111,6 @@ app.use(
   }),
 );
 
-// ============================================
-// STRIPE WEBHOOK (DISABLED - Can be re-enabled later)
-// ============================================
-// Uncomment when re-enabling card payments
-/*
-const paymentWebhook = require('./routes/paymentRoutes');
-app.use(
-  '/api/payments/webhook',
-  express.raw({ type: 'application/json' }),
-  paymentWebhook
-);
-*/
-
 // 4. Body parser with size limits (prevent DoS)
 app.use(express.json({ limit: "10kb" })); // Small limit for JSON
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
@@ -156,18 +139,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/wishlist", wishlistRoutes);
-
-// Stripe Payment Routes (Card Payments)
-const stripeRoutes = require("./routes/stripeRoutes");
-app.use("/api/stripe", stripeRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Debug Routes
 const debugRoutes = require("./routes/debugRoutes");
 app.use("/api/debug", debugRoutes);
-
-// Stripe Routes (DISABLED - Uncomment to re-enable)
-// const paymentRoutes = require('./routes/paymentRoutes');
-// app.use('/api/payments', paymentRoutes);
 
 // ============================================
 // STATIC FILES (Secure serving)

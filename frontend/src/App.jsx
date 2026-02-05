@@ -18,6 +18,7 @@ import ProductForm from "./admin/pages/Products/ProductForm";
 import Categories from "./admin/pages/Categories";
 import OrderList from "./admin/pages/Orders/OrderList";
 import OrderDetail from "./admin/pages/Orders/OrderDetail";
+import PaymentVerification from "./admin/pages/PaymentVerification";
 import CustomerList from "./admin/pages/Customers";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -87,6 +88,10 @@ function App() {
                         <Route path="categories" element={<Categories />} />
                         <Route path="orders" element={<OrderList />} />
                         <Route path="orders/:id" element={<OrderDetail />} />
+                        <Route
+                          path="payment-verification"
+                          element={<PaymentVerification />}
+                        />
                         <Route path="customers" element={<CustomerList />} />
                       </Route>
                     </Routes>

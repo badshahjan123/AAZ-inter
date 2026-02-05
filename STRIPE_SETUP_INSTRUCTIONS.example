@@ -1,0 +1,27 @@
+# Stripe Payment Integration - Environment Variables
+
+# ============================================
+# STRIPE CONFIGURATION
+# ============================================
+# Get these from: https://dashboard.stripe.com/apikeys
+
+# Stripe Publishable Key (Frontend - Safe to expose)
+STRIPE_PUBLISHABLE_KEY=your_publishable_key_here
+
+# Stripe Secret Key (Backend - Keep secret!)
+STRIPE_SECRET_KEY=your_secret_key_here
+
+# Stripe Webhook Secret (For payment confirmations)
+STRIPE_WEBHOOK_SECRET=your_webhook_secret_here
+
+# ============================================
+# INSTRUCTIONS FOR CLIENT
+# ============================================
+# 1. Go to https://dashboard.stripe.com/apikeys
+# 2. Copy the "Publishable key" and paste it in STRIPE_PUBLISHABLE_KEY
+# 3. Copy the "Secret key" and paste it in STRIPE_SECRET_KEY
+# 4. For webhooks:
+#    - Go to https://dashboard.stripe.com/webhooks
+#    - Add endpoint: https://yourdomain.com/api/stripe/webhook
+#    - Select events: payment_intent.succeeded, payment_intent.payment_failed
+#    - Copy the "Signing secret" and paste it in STRIPE_WEBHOOK_SECRET

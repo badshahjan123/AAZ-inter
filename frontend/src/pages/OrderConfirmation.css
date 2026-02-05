@@ -88,24 +88,125 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
   border-bottom: 4px solid #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.success-icon-wrapper {
+  background: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  margin-bottom: var(--spacing-sm);
 }
 
 .success-banner h1 {
   font-size: var(--font-size-3xl);
   color: var(--color-gray-900);
   margin: 0;
+  font-weight: 800;
 }
 
-.text-success { color: #10b981; }
+.text-success { 
+  color: #10b981; 
+}
 
 .order-id {
-  color: #6b7280;
+  color: #065f46;
   font-family: monospace;
   font-size: var(--font-size-lg);
+  font-weight: 700;
+  background: white;
+  padding: var(--spacing-xs) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 2px solid #86efac;
 }
+
+/* Success Message Section */
+.success-message {
+  width: 100%;
+  max-width: 600px;
+  margin: var(--spacing-lg) 0;
+}
+
+.success-text {
+  font-size: var(--font-size-md);
+  color: #065f46;
+  line-height: 1.6;
+  margin-bottom: var(--spacing-md);
+  font-weight: 500;
+}
+
+.payment-reminder,
+.cod-message,
+.card-reminder {
+  background: white;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border-left: 4px solid #f59e0b;
+  font-size: var(--font-size-sm);
+  color: #78350f;
+  text-align: left;
+  margin-top: var(--spacing-sm);
+}
+
+.cod-message {
+  border-left-color: #10b981;
+  color: #065f46;
+}
+
+.card-reminder {
+  border-left-color: #3b82f6;
+  color: #1e40af;
+}
+
+/* Tracking Info Box */
+.tracking-info {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 2px solid #86efac;
+  margin-top: var(--spacing-lg);
+}
+
+.tracking-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.tracking-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  background: var(--color-primary-bg);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+}
+
+.tracking-box h3 {
+  font-size: var(--font-size-lg);
+  color: var(--color-gray-900);
+  margin: 0 0 var(--spacing-xs) 0;
+  font-weight: 700;
+}
+
+.tracking-box p {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin: 0;
+  text-align: left;
+  line-height: 1.5;
+}
+
 
 /* Highlight Card (Action Required) */
 .highlight-card {

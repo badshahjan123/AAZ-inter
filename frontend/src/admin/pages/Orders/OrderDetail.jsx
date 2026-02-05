@@ -127,6 +127,7 @@ const OrderDetail = () => {
                 onChange={(e) => setNewStatus(e.target.value)}
                 className="admin-select"
               >
+                {/* Note: PAID status can only be set via Payment Verification page */}
                 <option value="PENDING">Pending</option>
                 <option value="PROCESSING">Processing</option>
                 <option value="SHIPPED">Shipped</option>

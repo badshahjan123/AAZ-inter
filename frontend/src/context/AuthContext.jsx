@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
           } else {
             console.log('Token invalid or user deleted');
             localStorage.removeItem('user');
+            localStorage.removeItem('aaz-cart'); // Clear cart
             setUser(null);
           }
         } catch (err) {
@@ -93,6 +94,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('aaz-cart'); // Clear cart on logout
     // Redirect to login (using window.location since we can't use useNavigate in Provider)
     if (window.location.pathname !== '/login') {
       window.location.href = '/login';

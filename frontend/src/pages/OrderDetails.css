@@ -2,7 +2,8 @@
 .order-details-page {
   padding: var(--spacing-2xl) 0;
   background-color: #f9fafb;
-  min-height: 90vh;
+  min-height: calc(100vh - 80px);
+  padding-bottom: var(--spacing-3xl);
 }
 
 /* Tracking Stepper */
@@ -16,7 +17,7 @@
 }
 
 .order-stepper::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 20px;
   left: 50px;
@@ -70,7 +71,8 @@
   text-transform: uppercase;
 }
 
-.step-item.completed span, .step-item.active span {
+.step-item.completed span,
+.step-item.active span {
   color: #111827;
 }
 
@@ -113,7 +115,9 @@
   border-radius: var(--radius-md);
 }
 
-.info-full { grid-column: span 2; }
+.info-full {
+  grid-column: span 2;
+}
 
 .order-items {
   display: flex;
@@ -130,8 +134,14 @@
   border-radius: var(--radius-sm);
 }
 
-.item-name { font-weight: 600; }
-.item-qty { color: #6b7280; display: block; font-size: 12px; }
+.item-name {
+  font-weight: 600;
+}
+.item-qty {
+  color: #6b7280;
+  display: block;
+  font-size: 12px;
+}
 
 .order-total {
   display: flex;
@@ -151,8 +161,13 @@
   gap: var(--spacing-lg);
 }
 
-.bank-details-card { background-color: #f0fdf4; border-color: #bbf7d0; }
-.upload-proof-card { border-top: 4px solid var(--color-primary); }
+.bank-details-card {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.upload-proof-card {
+  border-top: 4px solid var(--color-primary);
+}
 
 .detail-row {
   display: flex;
@@ -167,7 +182,9 @@
   margin-bottom: var(--spacing-md);
 }
 
-.status-verified, .status-pending, .status-failed {
+.status-verified,
+.status-pending,
+.status-failed {
   display: flex;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
@@ -175,9 +192,18 @@
   margin-top: var(--spacing-md);
 }
 
-.status-verified { background: #ecfdf5; color: #065f46; }
-.status-pending { background: #fffbeb; color: #92400e; }
-.status-failed { background: #fef2f2; color: #991b1b; }
+.status-verified {
+  background: #ecfdf5;
+  color: #065f46;
+}
+.status-pending {
+  background: #fffbeb;
+  color: #92400e;
+}
+.status-failed {
+  background: #fef2f2;
+  color: #991b1b;
+}
 
 /* Badge Colors */
 .badge {
@@ -189,17 +215,243 @@
   letter-spacing: 0.5px;
 }
 
-.badge-created { background: #e0e7ff; color: #4338ca; }
-.badge-payment-pending { background: #fef3c7; color: #92400e; }
-.badge-paid { background: #d1fae5; color: #065f46; }
-.badge-confirmed { background: #dcfce7; color: #15803d; }
-.badge-processing { background: #dcfce7; color: #15803d; }
-.badge-shipped { background: #ffedd5; color: #9a3412; }
-.badge-completed { background: #10b981; color: white; }
-.badge-delivered { background: #10b981; color: white; }
-.badge-cancelled { background: #fee2e2; color: #b91c1c; }
+.badge-created {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+.badge-payment-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+.badge-paid {
+  background: #d1fae5;
+  color: #065f46;
+}
+.badge-confirmed {
+  background: #dcfce7;
+  color: #15803d;
+}
+.badge-processing {
+  background: #dcfce7;
+  color: #15803d;
+}
+.badge-shipped {
+  background: #ffedd5;
+  color: #9a3412;
+}
+.badge-completed {
+  background: #10b981;
+  color: white;
+}
+.badge-delivered {
+  background: #10b981;
+  color: white;
+}
+.badge-cancelled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Payment Information Section */
+.payment-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.payment-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.payment-row:last-child {
+  border-bottom: none;
+}
+
+.payment-row span:first-child {
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.payment-row span:last-child {
+  color: #111827;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.mono {
+  font-family: "Monaco", "Courier New", monospace;
+  font-size: 12px;
+  background: #f3f4f6;
+  padding: 6px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.transaction-id {
+  word-break: break-all;
+  user-select: all;
+}
+
+/* Verification Badge */
+.verification-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.verification-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.verification-badge.approved {
+  background: #d1fae5;
+  color: #065f46;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.verification-badge.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Rejection Details */
+.rejection-details {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+}
+
+.rejection-details strong {
+  color: #991b1b;
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.rejection-message {
+  color: #7f1d1d;
+  margin: 0;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.rejection-note {
+  display: block;
+  margin-top: var(--spacing-xs);
+  color: #b91c1c;
+  font-style: italic;
+}
+
+/* Payment Proof Display */
+.payment-proof-display {
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
+  background: #f0f9ff;
+  border-radius: var(--radius-md);
+  border: 1px solid #bae6fd;
+}
+
+.payment-proof-display strong {
+  display: block;
+  margin-bottom: var(--spacing-md);
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.proof-preview {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: white;
+  padding: var(--spacing-sm);
+  border: 1px solid #e5e7eb;
+}
+
+.proof-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+
+/* WhatsApp Inquiry Card */
+.whatsapp-inquiry-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #86efac;
+  margin-top: var(--spacing-xl);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+}
+
+.inquiry-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.inquiry-header h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: #065f46;
+  font-weight: 700;
+}
+
+.inquiry-header .text-success {
+  color: #10b981;
+}
+
+.whatsapp-inquiry-card p {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.whatsapp-inquiry-card button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.whatsapp-inquiry-card button:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+/* Ensure main content area contains all cards properly */
+.order-details-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.order-info-card {
+  margin-bottom: 0;
+}
 
 @media (max-width: 900px) {
-  .order-details-layout { grid-template-columns: 1fr; }
-  .order-stepper::before { display: none; }
+  .order-details-layout {
+    grid-template-columns: 1fr;
+  }
+  .order-stepper::before {
+    display: none;
+  }
 }

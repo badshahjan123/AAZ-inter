@@ -10,8 +10,8 @@ const orderSchema = new mongoose.Schema(
     orderNumber: {
       type: String,
       unique: true,
-      sparse: true, // Allows null for backward compatibility
-      immutable: true, // Cannot be changed once set
+      sparse: true,
+      immutable: true,
     },
     customerName: {
       type: String,
@@ -58,63 +58,72 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       required: true,
-      enum: ["cod", "card"], // Updated: Only COD and Card
+      enum: ["bank", "cod"], // ONLY: Bank Transfer & Cash on Delivery
       default: "cod",
     },
-    paymentStatus: {
+    orderStatus: {
       type: String,
       required: true,
+      enum: [
+        // New professional statuses
+        "PENDING",
+        "PROCESSING",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+        // Legacy statuses (backward compatibility)
+        "CREATED",
+        "PAYMENT_PENDING",
+        "PAID",
+        "CONFIRMED",
+        "COMPLETED",
+      ],
+      default: "CREATED",
+    },
+
+    paymentStatus: {
+      type: String,
       enum: ["PENDING", "PAID", "FAILED", "REFUNDED"],
       default: "PENDING",
     },
 
-    paidAt: {
-      type: Date,
+    // ============================================
+    // BANK TRANSFER PAYMENT FIELDS
+    // ============================================
+    transactionId: {
+      type: String,
+      default: null, // User-provided transaction ID
+    },
+    paymentProof: {
+      type: String, // Path to uploaded payment screenshot
       default: null,
     },
-
-    // ============================================
-    // STRIPE PAYMENT FIELDS (Card Payments)
-    // ============================================
-    stripePaymentIntentId: {
+    verificationStatus: {
       type: String,
-      default: null, // Stripe Payment Intent ID
+      enum: ["PENDING", "APPROVED", "REJECTED", null],
+      default: null, // Only for bank transfer orders
     },
-
+    rejectionReason: {
+      type: String,
+      default: null, // Reason if admin rejects payment
+    },
+    verifiedAt: {
+      type: Date,
+      default: null, // When admin verified payment
+    },
+    verifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null, // Admin who verified the payment
+    },
     paidAt: {
       type: Date,
-      default: null, // When payment is confirmed (Card or Admin manually for COD)
+      default: null, // When payment was confirmed (for bank) or auto-confirmed (for COD)
     },
 
     // ============================================
-    // STRIPE FIELDS (DISABLED - Keep for future use)
+    // DELIVERY TRACKING
     // ============================================
-    // Uncomment these when re-enabling card payments
-    /*
-  paymentIntentId: {
-    type: String,
-    default: null
-  },
-  stripePaymentId: {
-    type: String,
-    default: null
-  },
-  cardLast4: {
-    type: String,
-    default: null
-  },
-  cardBrand: {
-    type: String,
-    default: null
-  },
-  */
-
-    orderStatus: {
-      type: String,
-      required: true,
-      enum: ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"],
-      default: "PENDING",
-    },
     isDelivered: {
       type: Boolean,
       required: true,

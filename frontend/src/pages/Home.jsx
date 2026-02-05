@@ -160,11 +160,6 @@ const Home = () => {
                   className="search-input"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSearch(e);
-                    }
-                  }}
                 />
                 <button type="submit" className="search-btn">
                   <Search size={20} />
@@ -172,11 +167,11 @@ const Home = () => {
               </form>
 
               <div className="hero-modern-actions">
-                <Button variant="primary" size="large" onClick={() => navigate('/products')}>
+                <Button variant="primary" onClick={() => navigate('/products')}>
                   <ShoppingBag size={20} />
                   Browse Products
                 </Button>
-                <Button variant="outline" size="large" onClick={() => navigate('/contact')}>
+                <Button variant="outline" onClick={() => navigate('/contact')}>
                   Contact Us
                 </Button>
               </div>
@@ -304,10 +299,10 @@ const Home = () => {
             <h2>Need Help Finding the Right Equipment?</h2>
             <p>Our team of medical equipment specialists is ready to assist you</p>
             <div className="cta-actions-modern">
-              <Button variant="primary" size="large" onClick={() => navigate('/contact')}>
+              <Button variant="primary" onClick={() => navigate('/contact')}>
                 Contact Our Team
               </Button>
-              <Button variant="secondary" size="large" onClick={() => navigate('/products')}>
+              <Button variant="secondary" onClick={() => navigate('/products')}>
                 Browse All Products
               </Button>
             </div>

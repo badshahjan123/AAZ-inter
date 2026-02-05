@@ -10,6 +10,7 @@ A complete full-stack e-commerce platform designed for B2B medical equipment sup
 ## 📋 Overview
 
 AAZ International is a professional B2B platform for medical equipment procurement, featuring:
+
 - Simplified payment system (Card + Cash on Delivery)
 - Real-time order tracking with Socket.io
 - Admin dashboard for order and product management
@@ -21,6 +22,7 @@ AAZ International is a professional B2B platform for medical equipment procureme
 ## 🚀 Features
 
 ### For Customers
+
 - ✅ Browse medical equipment products
 - ✅ Add to cart and checkout
 - ✅ Multiple payment methods (Card via Stripe, COD)
@@ -31,6 +33,7 @@ AAZ International is a professional B2B platform for medical equipment procureme
 - ✅ User profile management
 
 ### For Admin
+
 - ✅ Dashboard with analytics
 - ✅ Order management (view, update status)
 - ✅ Product management (add, edit, delete)
@@ -39,6 +42,7 @@ AAZ International is a professional B2B platform for medical equipment procureme
 - ✅ Order status updates
 
 ### Security & Compliance
+
 - ✅ JWT authentication
 - ✅ Password hashing (bcrypt)
 - ✅ Server-side validation
@@ -51,6 +55,7 @@ AAZ International is a professional B2B platform for medical equipment procureme
 ## 🛠️ Tech Stack
 
 ### Backend
+
 - **Node.js** - Runtime
 - **Express.js** - Web framework
 - **MongoDB** - Database
@@ -61,6 +66,7 @@ AAZ International is a professional B2B platform for medical equipment procureme
 - **Bcrypt** - Password hashing
 
 ### Frontend
+
 - **React** - UI library
 - **Vite** - Build tool
 - **React Router** - Navigation
@@ -94,6 +100,7 @@ AAZ-inter/
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (v14+)
 - MongoDB
 - npm or yarn
@@ -103,30 +110,35 @@ AAZ-inter/
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/badshahjan123/AAZ-inter.git
 cd AAZ-inter
 ```
 
 2. **Setup Backend**
+
 ```bash
 cd backend
 npm install
 ```
 
 3. **Create .env file** (backend)
+
 ```bash
 cp .env.example .env
 # Edit .env with your credentials
 ```
 
 4. **Setup Frontend**
+
 ```bash
 cd ../frontend
 npm install
 ```
 
 5. **Start Backend**
+
 ```bash
 cd backend
 npm start
@@ -134,6 +146,7 @@ npm start
 ```
 
 6. **Start Frontend**
+
 ```bash
 cd frontend
 npm run dev
@@ -143,6 +156,7 @@ npm run dev
 ## 🔑 Environment Variables
 
 ### Backend (.env)
+
 ```
 # Database
 MONGO_URI=your_mongodb_connection_string
@@ -172,12 +186,14 @@ ADMIN_PASSWORD=your_secure_password
 ## 📚 API Documentation
 
 ### Authentication
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - User login
 - `POST /api/auth/forgot-password` - Request password reset
 - `PUT /api/auth/reset-password/:token` - Reset password
 
 ### Products
+
 - `GET /api/products` - Get all products
 - `GET /api/products/:id` - Get product details
 - `POST /api/products` - Create product (admin)
@@ -185,12 +201,14 @@ ADMIN_PASSWORD=your_secure_password
 - `DELETE /api/products/:id` - Delete product (admin)
 
 ### Orders
+
 - `POST /api/orders` - Create order
 - `GET /api/orders/myorders` - Get user's orders
 - `GET /api/orders/:id` - Get order details
 - `PUT /api/orders/:id/status` - Update order status (admin)
 
 ### Payments
+
 - `POST /api/stripe/create-payment-intent` - Create Stripe payment intent
 
 ## 📝 Database Models
@@ -235,11 +253,13 @@ npm run test
 ## 📦 Deployment
 
 ### Backend (Node.js)
+
 - Deploy to Heroku, Railway, Render, or any Node.js hosting
 - Set production environment variables
 - Use MongoDB Atlas for cloud database
 
 ### Frontend (React/Vite)
+
 - Build: `npm run build`
 - Deploy to Vercel, Netlify, or any static hosting
 - Update API endpoints for production
@@ -260,6 +280,7 @@ npm run test
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit changes (`git commit -m 'Add amazing feature'`)

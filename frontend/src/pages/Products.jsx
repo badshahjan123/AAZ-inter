@@ -16,7 +16,13 @@ const Products = () => {
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get('search') || ''
   );
+
   const [filterOpen, setFilterOpen] = useState(false);
+  
+  // New Filter States
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000000 });
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('featured');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,9 +70,27 @@ const Products = () => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(query) || 
-        p.description?.toLowerCase().includes(query)
+        (p.name && p.name.toLowerCase().includes(query)) || 
+        (p.description && p.description.toLowerCase().includes(query))
       );
+    }
+
+    // Filter by Price
+    filtered = filtered.filter(p => {
+      const price = p.price || 0;
+      return price >= priceRange.min && price <= priceRange.max;
+    });
+
+    // Filter by Stock
+    if (inStockOnly) {
+       filtered = filtered.filter(p => (p.stock !== undefined ? p.stock > 0 : p.inStock));
+    }
+
+    // Sort Results
+    if (sortBy === 'price-low') {
+      filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+    } else if (sortBy === 'price-high') {
+      filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
     }
 
     // Then filter by category if selected
@@ -102,23 +126,72 @@ const Products = () => {
               available
             </p>
           </div>
-          <Button
-            variant="outline"
-            icon={<Filter size={20} />}
-            onClick={() => setFilterOpen(!filterOpen)}
-            className="mobile-filter-toggle"
-          >
-            Filter
-          </Button>
+          <div className="flex gap-4 items-center">
+            <select 
+              className="products-sort-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="featured">Featured</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+
+            <Button
+              variant="outline"
+              icon={<Filter size={20} />}
+              onClick={() => setFilterOpen(!filterOpen)}
+              className="mobile-filter-toggle"
+            >
+              Filter
+            </Button>
+          </div>
         </div>
 
         <div className="products-layout">
           {/* Sidebar Filter */}
           <aside className={`products-sidebar ${filterOpen ? 'products-sidebar-open' : ''}`}>
             <div className="filter-header">
-              <h2 className="filter-title">Categories</h2>
+              <h2 className="filter-title">Filters</h2>
             </div>
+
+            {/* Price Filter */}
+            <div className="filter-section">
+              <span className="filter-subtitle">Price Range (Rs.)</span>
+              <div className="filter-range-inputs">
+                <input 
+                  type="number" 
+                  className="filter-input"
+                  placeholder="Min"
+                  value={priceRange.min}
+                  onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
+                />
+                <span className="filter-divider">-</span>
+                <input 
+                  type="number" 
+                  className="filter-input"
+                  placeholder="Max"
+                  value={priceRange.max}
+                  onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
+                />
+              </div>
+            </div>
+
+            {/* Availability Filter */}
+            <div className="filter-section">
+              <span className="filter-subtitle">Availability</span>
+              <label className="filter-checkbox">
+                <input 
+                  type="checkbox" 
+                  checked={inStockOnly}
+                  onChange={(e) => setInStockOnly(e.target.checked)}
+                />
+                In Stock Only
+              </label>
+            </div>
+
             <div className="filter-list">
+              <span className="filter-subtitle" style={{ padding: '0 8px' }}>Categories</span>
               <button
                 className={`filter-item ${selectedCategory === 'all' ? 'filter-item-active' : ''}`}
                 onClick={() => handleCategoryChange('all')}
