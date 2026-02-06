@@ -51,7 +51,7 @@ const CheckoutContent = () => {
     const fetchBankDetails = async () => {
       try {
         const response = await fetch(
-          api("http://localhost:5000/api/payments/bank-details".Replace("http://localhost:5000", "")),
+          api("/api/payments/bank-details"),
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

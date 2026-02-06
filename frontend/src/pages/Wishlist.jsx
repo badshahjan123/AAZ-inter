@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -8,6 +8,7 @@ import Button from '../components/common/Button';
 import { api } from '../config/api';
 
 const Wishlist = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart } = useCart();
   const [wishlist, setWishlist] = useState([]);
@@ -57,9 +58,7 @@ const Wishlist = () => {
         <Heart size={64} color="#e74c3c" style={{ marginBottom: '1rem' }} />
         <h2>Please Login</h2>
         <p>You need to be logged in to view your wishlist.</p>
-        <Link to="/login">
-          <Button variant="primary">Login</Button>
-        </Link>
+        <Button variant="primary" onClick={() => navigate('/login')}>Login</Button>
       </div>
     );
   }
@@ -77,13 +76,18 @@ const Wishlist = () => {
       </div>
 
       {wishlist.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '4rem 0' }}>
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '4rem 0',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
           <Heart size={64} color="#cbd5e1" style={{ marginBottom: '1rem' }} />
           <h3 style={{ color: '#64748b', marginBottom: '0.5rem' }}>Your wishlist is empty</h3>
           <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>Save products you love to buy them later</p>
-          <Link to="/products">
-            <Button variant="primary">Browse Products</Button>
-          </Link>
+          <Button variant="primary" onClick={() => navigate('/products')}>Browse Products</Button>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>

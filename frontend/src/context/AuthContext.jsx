@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         // Do not auto login after signup
-        return { success: true };
+        return { success: true, email: data.email };
       } else {
         return { success: false, message: data.message || 'Signup failed' };
       }
@@ -90,6 +90,32 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: 'Server error. Please try again later.' };
     }
   };
+
+  const verifyEmail = async (email, otp) => {
+      try {
+        const response = await fetch(api('/api/auth/verify'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, otp }),
+        });
+  
+        const data = await response.json();
+  
+        if (response.ok) {
+          // Store user and token if verification returns them (auto-login)
+          if (data.token) {
+              localStorage.setItem('user', JSON.stringify(data));
+              setUser(data);
+          }
+          return { success: true };
+        } else {
+          return { success: false, message: data.message || 'Verification failed' };
+        }
+      } catch (error) {
+        console.error('Verification Error:', error);
+        return { success: false, message: 'Server error. Please try again later.' };
+      }
+    };
 
   const logout = () => {
     setUser(null);
@@ -116,6 +142,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     signup,
+    verifyEmail,
     logout,
     updateProfile,
     isAuthenticated: !!user

@@ -34,6 +34,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
@@ -108,6 +109,7 @@ function App() {
                       <Route path="/" element={<Home />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/signup" element={<Signup />} />
+                      <Route path="/verify-email" element={<VerifyEmail />} />
                       <Route
                         path="/forgot-password"
                         element={<ForgotPassword />}

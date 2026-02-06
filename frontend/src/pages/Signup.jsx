@@ -48,7 +48,7 @@ const Signup = () => {
     setLoading(false);
 
     if (result.success) {
-      navigate('/login?registered=true');
+      navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     } else {
       setError(result.message);
     }
