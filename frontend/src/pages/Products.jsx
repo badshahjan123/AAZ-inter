@@ -126,7 +126,7 @@ const Products = () => {
               available
             </p>
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="products-controls flex gap-4 items-center">
             <select 
               className="products-sort-select"
               value={sortBy}
