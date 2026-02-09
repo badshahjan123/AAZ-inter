@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { formatPrice } from '../data/products';
 import Button from '../components/common/Button';
-import { api } from '../config/api';
+import { api, API_URL } from '../config/api';
 
 const Wishlist = () => {
   const navigate = useNavigate();
@@ -97,7 +97,7 @@ const Wishlist = () => {
             
             if (productImage && (productImage.startsWith('/uploads') || productImage.startsWith('uploads/'))) {
               const cleanPath = productImage.startsWith('/') ? productImage : `/${productImage}`;
-              productImage = `http://localhost:5000${cleanPath}`;
+              productImage = `${API_URL}${cleanPath}`;
             }
             
             const imagePlaceholder = productImage || `https://via.placeholder.com/300x300/0A74DA/FFFFFF?text=${encodeURIComponent(product.name)}`;

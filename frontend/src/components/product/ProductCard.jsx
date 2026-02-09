@@ -5,6 +5,7 @@ import { formatPrice } from '../../data/products';
 import Button from '../common/Button';
 import Card from '../common/Card';
 import './ProductCard.css';
+import { API_URL } from '../../config/api';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -27,8 +28,7 @@ const ProductCard = ({ product }) => {
   // If it's a relative path starting with /uploads or uploads/, prefix with backend URL
   if (imageSrc && (imageSrc.startsWith('/uploads') || imageSrc.startsWith('uploads/'))) {
     const cleanPath = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
-    const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://aaz-inter-production.up.railway.app' : 'http://localhost:5000');
-    imageSrc = `${baseUrl}${cleanPath}`;
+    imageSrc = `${API_URL}${cleanPath}`;
   }
   
   // Fallback to placeholder if no image

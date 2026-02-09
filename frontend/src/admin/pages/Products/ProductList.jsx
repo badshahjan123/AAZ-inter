@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Edit, Trash2, Plus, Search, Package, CheckCircle, XCircle } from 'lucide-react';
-import { api } from '../../../config/api';
+import { api, API_URL } from '../../../config/api';
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ const ProductList = () => {
     if (imagePath.startsWith('http')) return imagePath;
     if (imagePath.startsWith('/uploads') || imagePath.startsWith('uploads/')) {
       const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-      const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://aaz-inter-production.up.railway.app' : 'http://localhost:5000');
+      const baseUrl = API_URL;
       return `${baseUrl}${cleanPath}`;
     }
     return imagePath;

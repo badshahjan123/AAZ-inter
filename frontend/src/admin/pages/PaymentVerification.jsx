@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { api } from '../../config/api';
+import { api, API_URL } from '../../config/api';
 import {
   AlertCircle,
   CheckCircle,
@@ -234,7 +234,7 @@ const PaymentVerification = () => {
                     <div className="payment-proof-preview">
                       <p className="proof-label">Payment Proof Screenshot:</p>
                       <img
-                        src={`${import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://aaz-inter-production.up.railway.app' : 'http://localhost:5000')}/${payment.paymentProof}`}
+                        src={`${API_URL}/${payment.paymentProof}`}
                         alt="Payment Proof"
                         className="proof-thumbnail"
                       />
@@ -310,7 +310,7 @@ const PaymentVerification = () => {
                 {selectedOrder.paymentProof ? (
                   <div className="payment-proof-full">
                     <img
-                      src={`${import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://aaz-inter-production.up.railway.app' : 'http://localhost:5000')}/${selectedOrder.paymentProof}`}
+                      src={`${API_URL}/${selectedOrder.paymentProof}`}
                       alt="Payment Proof"
                       className="proof-image"
                     />

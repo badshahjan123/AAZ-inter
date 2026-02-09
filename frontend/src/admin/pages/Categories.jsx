@@ -26,8 +26,8 @@ const Categories = () => {
     setLoading(true);
     const token = localStorage.getItem('adminToken');
     const url = editingId 
-      ? `http://localhost:5000/api/categories/${editingId}`
-      : api('http://localhost:5000/api/categories'.Replace('http://localhost:5000', ''));
+      ? api(`/api/categories/${editingId}`)
+      : api('/api/categories');
     const method = editingId ? 'PUT' : 'POST';
 
     try {

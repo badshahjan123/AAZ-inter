@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import { api } from '../config/api';
+import { api, API_URL } from '../config/api';
 const SocketContext = createContext();
 
 export const useSocket = () => {
@@ -36,7 +36,7 @@ export const SocketProvider = ({ children }) => {
         return;
       }
 
-      const backendUrl = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://aaz-inter-production.up.railway.app' : 'http://localhost:5000');
+      const backendUrl = API_URL;
       const socketInstance = io(backendUrl, {
         transports: ['websocket', 'polling'],
         timeout: 5000,

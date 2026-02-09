@@ -6,6 +6,7 @@ import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import ProductCard from '../components/product/ProductCard';
 import './Cart.css';
+import { API_URL } from '../config/api';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ const Cart = () => {
                   <img
                     src={
                       item.image && (item.image.startsWith('/uploads') || item.image.startsWith('uploads/'))
-                        ? `http://localhost:5000${item.image.startsWith('/') ? item.image : `/${item.image}`}`
+                        ? `${API_URL}${item.image.startsWith('/') ? item.image : `/${item.image}`}`
                         : (item.image || `https://via.placeholder.com/150x150/0A74DA/FFFFFF?text=${encodeURIComponent(
                           item.name.substring(0, 10))}`)
                     }

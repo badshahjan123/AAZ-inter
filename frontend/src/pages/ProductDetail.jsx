@@ -20,7 +20,7 @@ import { useAuth } from '../context/AuthContext';
 import { sendWhatsAppMessage, whatsappMessages } from '../utils/helpers';
 import Button from '../components/common/Button';
 import ProductCard from '../components/product/ProductCard';
-import { api } from '../config/api';
+import { api, API_URL } from '../config/api';
 import './ProductDetail.css';
 const ProductDetail = () => {
   const { id } = useParams();
@@ -233,7 +233,7 @@ const ProductDetail = () => {
   // If it's a relative path starting with /uploads or uploads/, prefix with backend URL
   if (mainImage && (mainImage.startsWith('/uploads') || mainImage.startsWith('uploads/'))) {
     const cleanPath = mainImage.startsWith('/') ? mainImage : `/${mainImage}`;
-    mainImage = `http://localhost:5000${cleanPath}`;
+    mainImage = `${API_URL}${cleanPath}`;
   }
   
   // Fallback to placeholder if no image

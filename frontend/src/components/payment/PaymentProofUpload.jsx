@@ -59,7 +59,7 @@ const PaymentProofUpload = ({ orderId, onUploadSuccess }) => {
       console.log("File:", screenshot.name, screenshot.size, screenshot.type);
 
       const response = await fetch(
-        api("http://localhost:5000/api/payments/upload-proof".Replace("http://localhost:5000", "")),
+        api("/api/payments/upload-proof"),
         {
           method: "POST",
           body: formData,

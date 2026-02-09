@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X, DollarSign, Archive, Tag } from 'lucide-react';
-import { api } from '../../../config/api';
+import { api, API_URL } from '../../../config/api';
 const ProductForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -98,10 +98,11 @@ const ProductForm = () => {
       
       if (res.ok) {
         // Convert relative path to full URL
-        const imageUrl = data.image.startsWith('http') 
-          ? data.image 
-          const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://aaz-inter-production.up.railway.app' : 'http://localhost:5000');
-          : `${baseUrl}${data.image}`;
+        let imageUrl = data.image;
+        if (!imageUrl.startsWith('http')) {
+          const cleanPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+          imageUrl = `${API_URL}${cleanPath}`;
+        }
         
         setFormData(prev => ({ ...prev, image: imageUrl }));
       } else {
@@ -123,8 +124,8 @@ const ProductForm = () => {
     try {
       const token = localStorage.getItem('adminToken');
       const url = isEditMode 
-        ? `http://localhost:5000/api/products/${id}` 
-        : api('http://localhost:5000/api/products'.Replace('http://localhost:5000', ''));
+        ? api(`/api/products/${id}`) 
+        : api('/api/products');
       
       const method = isEditMode ? 'PUT' : 'POST';
 

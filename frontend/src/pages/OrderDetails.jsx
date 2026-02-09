@@ -5,6 +5,7 @@ import { useSocket } from "../context/SocketContext";
 import { formatPrice } from "../data/products";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
+import { api, API_URL } from "../config/api";
 import {
   ArrowLeft,
   Package,
@@ -72,7 +73,7 @@ const OrderDetails = () => {
   const fetchOrderDetails = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/orders/${orderId}`,
+        api(`/api/orders/${orderId}`),
         {
           headers: {
             ...(user?.token && { Authorization: `Bearer ${user.token}` }),
@@ -102,7 +103,7 @@ const OrderDetails = () => {
 
     try {
       await fetch(
-        `http://localhost:5000/api/manual-payments/whatsapp-confirm/${orderId}`,
+        api(`/api/manual-payments/whatsapp-confirm/${orderId}`),
         {
           method: "POST",
           headers: {
@@ -404,7 +405,7 @@ const OrderDetails = () => {
                       <strong>Payment Proof Uploaded:</strong>
                       <div className="proof-preview">
                         <img
-                          src={`http://localhost:5000/${order.paymentProof}`}
+                          src={`${API_URL}/${order.paymentProof}`}
                           alt="Payment Proof"
                           className="proof-image"
                         />

@@ -21,6 +21,7 @@ import Card from "../components/common/Card";
 import PaymentProofUpload from "../components/payment/PaymentProofUpload";
 import { useAuth } from "../context/AuthContext";
 import StripePayment from "../components/payment/StripePayment";
+import { api } from "../config/api";
 import "./OrderConfirmation.css";
 
 const OrderConfirmation = () => {
@@ -65,7 +66,7 @@ const OrderConfirmation = () => {
   const fetchOrderStatus = async (orderId) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/orders/${orderId}`,
+        api(`/api/orders/${orderId}`),
         {
           headers: {
             ...(user?.token && { Authorization: `Bearer ${user.token}` }),
