@@ -57,8 +57,25 @@ connectDB();
 
 const app = express();
 
-// Trust proxy for rate-limiting (Requirement for Railway/Vercel/Netlify)
+// Trust proxy for rate-limiting
 app.set('trust proxy', 1);
+
+// Health Check Route
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    smtp: process.env.SMTP_EMAIL ? 'configured' : 'missing'
+  });
+});
+
+// Periodic Heartbeat for logs
+setInterval(() => {
+  if (process.env.NODE_ENV === 'production') {
+    console.log(`💓 Heartbeat: Server running at ${new Date().toISOString()}`);
+  }
+}, 600000); // Every 10 mins
 
 // ============================================
 // SECURITY MIDDLEWARE (Defense-in-Depth)
