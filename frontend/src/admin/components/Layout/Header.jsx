@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Bell, User, MessageSquare } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuth';
 import { useSocket } from '../../../context/SocketContext';
 
-const Header = () => {
+const Header = ({ onMenuClick }) => {
   const { admin } = useAdminAuth();
   const { socket } = useSocket();
   const [notifications, setNotifications] = useState([]);
@@ -35,19 +35,31 @@ const Header = () => {
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
-    if (!showDropdown) setUnreadCount(0); // Mark as read when opening
+    if (!showDropdown) setUnreadCount(0);
   };
 
   return (
     <header className="admin-header">
-      <div className="header-search">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button
+          onClick={onMenuClick}
+          style={{
+            display: 'none',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px',
+          }}
+          className="mobile-menu-btn"
+        >
+          <Menu size={24} color="var(--admin-text-sub)" />
+        </button>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--admin-text-main)' }}>
           Welcome back, {admin?.name || 'Admin'}
         </h2>
       </div>
       
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', position: 'relative' }}>
-        {/* BELL NOTIFICATION */}
         <div style={{ position: 'relative' }}>
           <button 
             onClick={toggleDropdown}
@@ -67,7 +79,6 @@ const Header = () => {
             )}
           </button>
 
-          {/* NOTIFICATION DROPDOWN */}
           {showDropdown && (
             <div style={{
               position: 'absolute',
@@ -84,17 +95,15 @@ const Header = () => {
             }}>
               <div style={{ padding: '1rem', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Recent Notifications</span>
-                <span style={{ fontSize: '0.7rem', color: 'var(--admin-primary)', cursor: 'pointer' }}>Mark all read</span>
               </div>
               <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                 {notifications.length === 0 ? (
                   <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-                    <MessageSquare size={32} style={{ opacity: 0.2, marginBottom: '0.5rem' }} />
                     <p>No new notifications</p>
                   </div>
                 ) : (
                   notifications.map(n => (
-                    <div key={n.id} style={{ padding: '1rem', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={(e) => e.target.style.background = '#f8fafc'} onMouseLeave={(e) => e.target.style.background = 'white'}>
+                    <div key={n.id} style={{ padding: '1rem', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }}>
                       <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.2rem' }}>{n.title}</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)' }}>{n.message}</div>
                       <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.4rem' }}>{n.time}</div>
@@ -111,11 +120,11 @@ const Header = () => {
           )}
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid #e2e8f0', paddingLeft: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid #e2e8f0', paddingLeft: '1.5rem' }} className="admin-user-info">
           <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-light) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '0.9rem' }}>
             {admin?.name?.charAt(0) || 'A'}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }} className="admin-user-text">
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-text-main)', lineHeight: 1.2 }}>
               {admin?.name || 'Admin'}
             </span>

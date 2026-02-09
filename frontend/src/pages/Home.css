@@ -610,41 +610,61 @@
 
 @media (max-width: 768px) {
   .hero-modern {
-    padding: 40px 0;
+    padding: 32px 0 24px;
+    min-height: 300px;
   }
 
   .hero-modern-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    margin-bottom: 20px;
   }
 
   .hero-search {
     max-width: 100%;
+    border-radius: 12px;
   }
 
   .search-category {
     display: none;
   }
 
+  .search-input {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+
+  .search-btn {
+    padding: 14px 20px;
+  }
+
   .hero-modern-actions {
-    gap: 12px;
+    gap: 10px;
+    flex-direction: column;
+    width: 100%;
   }
 
   .hero-modern-actions button,
   .hero-modern-actions .btn {
-    min-width: 140px !important;
-    max-width: 180px !important;
-    padding: 12px 24px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    padding: 14px 20px !important;
     font-size: 14px !important;
   }
 
-
   .features-grid-modern {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
   }
 
   .featured-boxes-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .featured-box {
+    min-height: 140px;
+    padding: 20px 16px;
   }
 
   .category-section {
@@ -658,36 +678,70 @@
   }
 
   .category-section-title {
-    font-size: 22px;
+    font-size: 1.5rem;
   }
 
   .category-products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .why-choose-grid,
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .section-header-clean h2 {
+    font-size: 1.75rem;
   }
 
   .cta-section-modern {
-    padding: 48px 0;
+    padding: 40px 0;
   }
 
   .cta-content-modern h2 {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
 
   .cta-content-modern p {
-    font-size: 15px;
+    font-size: 14px;
   }
 
-
   .cta-actions-modern {
-    gap: 12px;
+    gap: 10px;
+    flex-direction: column;
+    width: 100%;
   }
 
   .cta-actions-modern button,
   .cta-actions-modern .btn {
-    min-width: 150px !important;
-    max-width: 200px !important;
-    padding: 12px 24px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    padding: 14px 20px !important;
     font-size: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-modern-title {
+    font-size: 1.5rem;
+  }
+
+  .featured-box-title {
+    font-size: 1.125rem;
+  }
+
+  .category-section-title {
+    font-size: 1.25rem;
+  }
+
+  .section-header-clean h2 {
+    font-size: 1.5rem;
+  }
+
+  .cta-content-modern h2 {
+    font-size: 1.25rem;
   }
 }

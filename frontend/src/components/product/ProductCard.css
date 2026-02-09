@@ -157,17 +157,41 @@
     height: auto;
   }
 
+  .product-card-image {
+    padding-bottom: 75%;
+  }
+
   .product-card-content {
-    padding: 14px;
+    padding: 12px;
+  }
+
+  .product-card-name {
+    font-size: 0.875rem;
+    min-height: auto;
+  }
+
+  .product-card-description {
+    font-size: 0.75rem;
   }
 
   .product-card-actions {
     grid-template-columns: 1fr;
-    gap: 6px;
+    gap: 8px;
   }
 
   .product-card-actions .btn {
-    height: 36px;
-    font-size: 12px;
+    height: 38px;
+    font-size: 0.875rem;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-card-name {
+    font-size: 0.8125rem;
+  }
+
+  .product-price {
+    font-size: 1rem;
   }
 }

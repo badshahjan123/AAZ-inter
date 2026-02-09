@@ -5,15 +5,16 @@ import {
   Package,
   ShoppingCart,
   Users,
-  Settings,
   LogOut,
   Tags,
   CheckCircle,
+  X,
 } from "lucide-react";
 import { useAdminAuth } from "../../context/AdminAuth";
 import { useSocket } from "../../../context/SocketContext";
 import { api } from '../../../config/api';
-const Sidebar = () => {
+
+const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const { logout } = useAdminAuth();
   const { socket } = useSocket();
@@ -51,16 +52,12 @@ const Sidebar = () => {
       });
       const data = await res.json();
 
-      // Fix: Handle non-array responses (like error objects)
       if (Array.isArray(data)) {
-        // Count only CREATED or PAYMENT_PENDING orders
         const count = data.filter(
           (o) =>
             o.orderStatus === "CREATED" || o.orderStatus === "PAYMENT_PENDING",
         ).length;
         setPendingOrders(count);
-      } else {
-        console.warn("Sidebar received invalid orders data:", data);
       }
     } catch (err) {
       console.error("Error fetching sidebar counts:", err);
@@ -104,20 +101,36 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="admin-sidebar">
+    <aside className={`admin-sidebar ${isOpen ? 'mobile-open' : ''}`}>
       <div className="admin-sidebar-header">
-        <div
-          className="avatar-circle"
-          style={{
-            width: "40px",
-            height: "40px",
-            fontSize: "0.9rem",
-            marginRight: "0.75rem",
-          }}
-        >
-          AZ
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+          <div
+            className="avatar-circle"
+            style={{
+              width: "40px",
+              height: "40px",
+              fontSize: "0.9rem",
+              marginRight: "0.75rem",
+            }}
+          >
+            AZ
+          </div>
+          <span>Admin Panel</span>
         </div>
-        <span>Admin Panel</span>
+        <button
+          onClick={onClose}
+          style={{
+            display: 'none',
+            background: 'none',
+            border: 'none',
+            color: 'var(--admin-primary)',
+            cursor: 'pointer',
+            padding: '4px',
+          }}
+          className="mobile-close-btn"
+        >
+          <X size={24} />
+        </button>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto" }}>
@@ -138,6 +151,7 @@ const Sidebar = () => {
             <Link
               key={item.path}
               to={item.path}
+              onClick={onClose}
               className={`admin-nav-item ${isActive(item.path) ? "active" : ""}`}
               style={{
                 display: "flex",

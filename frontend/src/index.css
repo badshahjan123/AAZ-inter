@@ -264,12 +264,28 @@ a:hover {
 
 @media (max-width: 768px) {
   :root {
-    --font-size-4xl: 2rem;
+    --font-size-4xl: 1.75rem;
     --font-size-3xl: 1.5rem;
     --font-size-2xl: 1.25rem;
   }
 
   .container {
-    padding: 0 var(--spacing-md);
+    padding: 0 1rem;
+  }
+
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-4xl: 1.5rem;
+    --font-size-3xl: 1.25rem;
+    --font-size-2xl: 1.125rem;
+  }
+
+  .container {
+    padding: 0 0.75rem;
   }
 }
