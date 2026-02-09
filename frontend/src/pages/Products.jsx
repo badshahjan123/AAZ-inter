@@ -153,6 +153,13 @@ const Products = () => {
           <aside className={`products-sidebar ${filterOpen ? 'products-sidebar-open' : ''}`}>
             <div className="filter-header">
               <h2 className="filter-title">Filters</h2>
+              <button 
+                className="mobile-filter-close" 
+                onClick={() => setFilterOpen(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
             </div>
 
             {/* Price Filter */}
