@@ -1,9 +1,13 @@
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || (
-  import.meta.env.MODE === 'production' 
-    ? 'https://aaz-inter-production.up.railway.app' // Production backend (Railway)
-    : 'http://localhost:5000' // Development backend (localhost)
-);
+// IMPORTANT: Uses VITE_API_URL from environment variables
+// .env.production → https://aaz-inter-production.up.railway.app (for Vercel)
+// .env → http://localhost:5000 (for local development)
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+if (!API_BASE_URL) {
+  console.error('❌ VITE_API_URL is not defined! Check your .env file.');
+}
 
 export const API_URL = API_BASE_URL;
 
@@ -14,4 +18,3 @@ export const api = (path) => {
 };
 
 export default API_URL;
-

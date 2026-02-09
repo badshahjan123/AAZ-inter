@@ -107,10 +107,16 @@ app.use(
       }
     },
     credentials: true, // Allow cookies
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Content-Length", "X-Request-Id"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   }),
 );
+
+// Explicit OPTIONS handler for preflight requests
+app.options('*', cors());
 
 // 4. Body parser with size limits (prevent DoS)
 app.use(express.json({ limit: "10kb" })); // Small limit for JSON
