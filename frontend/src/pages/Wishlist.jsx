@@ -96,7 +96,8 @@ const Wishlist = () => {
             let productImage = product.image;
             
             if (productImage && (productImage.startsWith('/uploads') || productImage.startsWith('uploads/'))) {
-              const cleanPath = productImage.startsWith('/') ? productImage : `/${productImage}`;
+              const normalizedSrc = productImage.replace(/\\/g, '/');
+              const cleanPath = normalizedSrc.startsWith('/') ? normalizedSrc : `/${normalizedSrc}`;
               productImage = `${API_URL}${cleanPath}`;
             }
             

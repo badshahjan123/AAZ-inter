@@ -232,7 +232,9 @@ const ProductDetail = () => {
   
   // If it's a relative path starting with /uploads or uploads/, prefix with backend URL
   if (mainImage && (mainImage.startsWith('/uploads') || mainImage.startsWith('uploads/'))) {
-    const cleanPath = mainImage.startsWith('/') ? mainImage : `/${mainImage}`;
+    // Normalize slashes (Windows to Unix)
+    const normalizedSrc = mainImage.replace(/\\/g, '/');
+    const cleanPath = normalizedSrc.startsWith('/') ? normalizedSrc : `/${normalizedSrc}`;
     mainImage = `${API_URL}${cleanPath}`;
   }
   

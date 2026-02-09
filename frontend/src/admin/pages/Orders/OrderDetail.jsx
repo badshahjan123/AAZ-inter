@@ -66,7 +66,8 @@ const OrderDetail = () => {
     if (!imagePath) return '';
     if (imagePath.startsWith('http')) return imagePath;
     if (imagePath.startsWith('/uploads') || imagePath.startsWith('uploads/')) {
-      const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+      const normalizedSrc = imagePath.replace(/\\/g, '/');
+      const cleanPath = normalizedSrc.startsWith('/') ? normalizedSrc : `/${normalizedSrc}`;
       const baseUrl = API_URL;
       return `${baseUrl}${cleanPath}`;
     }

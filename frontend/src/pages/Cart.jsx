@@ -63,12 +63,15 @@ const Cart = () => {
               <Card key={`cart-item-${item.id || item._id || index}`} className="cart-item" padding="medium">
                 <div className="cart-item-image">
                   <img
-                    src={
-                      item.image && (item.image.startsWith('/uploads') || item.image.startsWith('uploads/'))
-                        ? `${API_URL}${item.image.startsWith('/') ? item.image : `/${item.image}`}`
-                        : (item.image || `https://via.placeholder.com/150x150/0A74DA/FFFFFF?text=${encodeURIComponent(
-                          item.name.substring(0, 10))}`)
-                    }
+                    src={(() => {
+                      if (!item.image) return `https://via.placeholder.com/150x150/0A74DA/FFFFFF?text=${encodeURIComponent(item.name.substring(0, 10))}`;
+                      if (item.image.startsWith('/uploads') || item.image.startsWith('uploads/')) {
+                        const normalizedSrc = item.image.replace(/\\/g, '/');
+                        const cleanPath = normalizedSrc.startsWith('/') ? normalizedSrc : `/${normalizedSrc}`;
+                        return `${API_URL}${cleanPath}`;
+                      }
+                      return item.image;
+                    })()}
                     alt={item.name}
                     onError={(e) => e.target.src = 'https://via.placeholder.com/150?text=No+Img'}
                   />

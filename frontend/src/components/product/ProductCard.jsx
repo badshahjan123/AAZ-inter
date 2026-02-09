@@ -27,7 +27,9 @@ const ProductCard = ({ product }) => {
   
   // If it's a relative path starting with /uploads or uploads/, prefix with backend URL
   if (imageSrc && (imageSrc.startsWith('/uploads') || imageSrc.startsWith('uploads/'))) {
-    const cleanPath = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
+    // Normalize slashes (Windows to Unix)
+    const normalizedSrc = imageSrc.replace(/\\/g, '/');
+    const cleanPath = normalizedSrc.startsWith('/') ? normalizedSrc : `/${normalizedSrc}`;
     imageSrc = `${API_URL}${cleanPath}`;
   }
   

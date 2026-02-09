@@ -100,7 +100,8 @@ const ProductForm = () => {
         // Convert relative path to full URL
         let imageUrl = data.image;
         if (!imageUrl.startsWith('http')) {
-          const cleanPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+          const normalizedSrc = imageUrl.replace(/\\/g, '/');
+          const cleanPath = normalizedSrc.startsWith('/') ? normalizedSrc : `/${normalizedSrc}`;
           imageUrl = `${API_URL}${cleanPath}`;
         }
         

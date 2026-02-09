@@ -234,7 +234,7 @@ const PaymentVerification = () => {
                     <div className="payment-proof-preview">
                       <p className="proof-label">Payment Proof Screenshot:</p>
                       <img
-                        src={`${API_URL}/${payment.paymentProof}`}
+                        src={`${API_URL}/${payment.paymentProof.replace(/\\/g, '/')}`}
                         alt="Payment Proof"
                         className="proof-thumbnail"
                       />
@@ -310,7 +310,7 @@ const PaymentVerification = () => {
                 {selectedOrder.paymentProof ? (
                   <div className="payment-proof-full">
                     <img
-                      src={`${API_URL}/${selectedOrder.paymentProof}`}
+                      src={`${API_URL}/${selectedOrder.paymentProof.replace(/\\/g, '/')}`}
                       alt="Payment Proof"
                       className="proof-image"
                     />
