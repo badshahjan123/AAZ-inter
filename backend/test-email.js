@@ -5,15 +5,10 @@ const sendTestEmail = async () => {
   console.log('TEST_START');
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: 465,
-      secure: true, 
+      service: 'gmail',
       auth: {
         user: process.env.SMTP_EMAIL,
         pass: process.env.SMTP_PASSWORD 
-      },
-      tls: {
-       rejectUnauthorized: false
       }
     });
 
