@@ -11,6 +11,13 @@ const path = require("path");
 // Load env vars FIRST
 dotenv.config();
 
+// Debug SMTP Config (Presence only, not value)
+if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
+  console.log('✅ SMTP Configuration: DETECTED');
+} else {
+  console.log('❌ SMTP Configuration: MISSING (Email will fail)');
+}
+
 // Validate critical environment variables (secure comparison)
 const crypto = require("crypto");
 const expectedSecret = "your_jwt_secret_key_here";
