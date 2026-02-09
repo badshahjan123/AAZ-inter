@@ -11,11 +11,11 @@ const path = require("path");
 // Load env vars FIRST
 dotenv.config();
 
-// Debug SMTP Config (Presence only, not value)
-if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
-  console.log('✅ SMTP Configuration: DETECTED');
+// Debug Resend Config (Presence only)
+if (process.env.RESEND_API_KEY) {
+  console.log('✅ Resend API Configuration: DETECTED');
 } else {
-  console.log('❌ SMTP Configuration: MISSING (Email will fail)');
+  console.log('❌ Resend API Configuration: MISSING (Email will fail)');
 }
 
 // Validate critical environment variables (secure comparison)

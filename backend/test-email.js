@@ -1,34 +1,28 @@
+const { Resend } = require('resend');
 require('dotenv').config();
-const nodemailer = require('nodemailer');
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendTestEmail = async () => {
   console.log('TEST_START');
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD 
-      }
-    });
-
-    console.log(`Sending from: ${process.env.SMTP_EMAIL}`);
-    
-    await transporter.verify();
-    console.log('SMTP Connection Verified');
-
-    const info = await transporter.sendMail({
-      from: `"Test" <${process.env.SMTP_EMAIL}>`,
+    const { data, error } = await resend.emails.send({
+      from: 'AAZ Medical <onboarding@resend.dev>',
       to: process.env.SMTP_EMAIL,
-      subject: 'Test Email',
-      text: 'Works!',
+      subject: 'Resend Test Email',
+      html: '<p>Resend is working!</p>',
     });
-    console.log('SENT_SUCCESS');
+
+    if (error) {
+       console.error('RESEND_ERROR', error);
+       process.exit(1);
+    }
+
+    console.log('SENT_SUCCESS', data.id);
   } catch (error) {
     console.log('SENT_FAILED');
     console.error(error.message);
-    if (error.response) console.error(error.response);
-    process.exit(1); 
+    process.exit(1);
   }
 };
 
