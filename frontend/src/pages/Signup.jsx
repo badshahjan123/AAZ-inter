@@ -48,7 +48,12 @@ const Signup = () => {
     setLoading(false);
 
     if (result.success) {
-      navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+      if (result.isVerified) {
+        // If backend returns verified (e.g. SMTP issue fallback), skip verification page
+        navigate('/');
+      } else {
+        navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+      }
     } else {
       setError(result.message);
     }

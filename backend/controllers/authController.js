@@ -85,13 +85,37 @@ const registerUser = async (req, res, next) => {
          
           await userExists.save();
 
+          // Check if SMTP is configured
+          if (!process.env.SMTP_HOST || !process.env.SMTP_EMAIL) {
+             console.warn('⚠️ SMTP not configured. Auto-verifying existing user.');
+             userExists.isVerified = true;
+             userExists.otp = undefined;
+             userExists.otpExpire = undefined;
+             await userExists.save();
+             
+             res.status(200).json({
+               message: 'Registration successful. Email verification skipped (SMTP not configured).',
+               email: userExists.email,
+               isVerified: true,
+               token: generateToken(userExists._id)
+             });
+             return;
+          }
+
           try {
-            await sendEmail({
+            const sendEmailPromise = sendEmail({
               email: userExists.email,
               subject: 'AAZ Medical - Verify Your Email',
               message: `Your verification code is: ${otp}. It expires in 10 minutes.`,
               html: `<h1>Email Verification</h1><p>Your verification code is:</p><h2>${otp}</h2><p>It expires in 10 minutes.</p>`
             });
+            
+            const timeoutPromise = new Promise((_, reject) => 
+               setTimeout(() => reject(new Error('Email sending timed out')), 10000)
+            );
+            
+            await Promise.race([sendEmailPromise, timeoutPromise]);
+
             res.status(200).json({
               message: 'Verification email sent. Please verify your account.',
               email: userExists.email,
@@ -102,25 +126,20 @@ const registerUser = async (req, res, next) => {
           } catch (err) {
             console.error('Email sending failed:', err.message);
             
-            // In development, allow registration even if email fails
-            if (process.env.NODE_ENV === 'development') {
-              console.log('\n========================================');
-              console.log('⚠️  EMAIL NOT CONFIGURED - DEVELOPMENT MODE');
-              console.log(`📧 Verification OTP for ${userExists.email}: ${otp}`);
-              console.log('========================================\n');
-              
-              res.status(200).json({
-                message: 'Registration successful. Check server console for OTP (email not configured).',
-                email: userExists.email,
-                isVerified: false,
-                otp,
-                warning: 'Email service not configured. Check server console for OTP.'
-              });
-              return;
-            } else {
-              res.status(500);
-              throw new Error('Email could not be sent. Please check your email address.');
-            }
+            console.log('⚠️ Email failed in production (Resend). Auto-verifying to allow access.');
+            userExists.isVerified = true;
+            userExists.otp = undefined;
+            userExists.otpExpire = undefined;
+            await userExists.save();
+            
+            res.status(200).json({
+              message: 'Registration successful. Email verification skipped due to server timeout.',
+              email: userExists.email,
+              isVerified: true,
+              token: generateToken(userExists._id),
+              warning: 'Email verification could not be completed.'
+            });
+            return;
           }
       }
 

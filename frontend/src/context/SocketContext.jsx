@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import io from 'socket.io-client';
-import { api, API_URL } from '../config/api';
+import { API_URL } from '../config/api';
 const SocketContext = createContext();
 
 export const useSocket = () => {
@@ -16,35 +16,16 @@ export const SocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Check if backend is running before connecting
-    const checkBackend = async () => {
-      try {
-        const response = await fetch(api('/api/categories'), { 
-          method: 'HEAD',
-          signal: AbortSignal.timeout(2000)
-        });
-        return response.ok;
-      } catch {
-        return false;
-      }
-    };
-
-    const connectSocket = async () => {
-      const backendRunning = await checkBackend();
-      if (!backendRunning) {
-        console.log('Backend not running - skipping socket connection');
-        return;
-      }
-
-      const backendUrl = API_URL;
-      const socketInstance = io(backendUrl, {
+    let socketInstance;
+    const connectSocket = () => {
+      socketInstance = io(API_URL, {
         transports: ['websocket', 'polling'],
         timeout: 5000,
-        autoConnect: true
+        autoConnect: true,
+        reconnection: false
       });
 
       socketInstance.on('connect', () => {
-        console.log('✅ Socket connected:', socketInstance.id);
         setIsConnected(true);
       });
 
@@ -57,23 +38,22 @@ export const SocketProvider = ({ children }) => {
       });
 
       setSocket(socketInstance);
-      return socketInstance;
     };
 
-    let socketInstance;
-    connectSocket().then(instance => {
-      socketInstance = instance;
-    });
+    const timer = setTimeout(connectSocket, 1000);
 
     return () => {
+      clearTimeout(timer);
       if (socketInstance) {
         socketInstance.disconnect();
       }
     };
   }, []);
 
+  const value = useMemo(() => ({ socket, isConnected }), [socket, isConnected]);
+
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider value={value}>
       {children}
     </SocketContext.Provider>
   );

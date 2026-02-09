@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 
 const CartContext = createContext();
 
@@ -12,12 +12,10 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
-    // Load cart from localStorage on initialization
     const savedCart = localStorage.getItem("aaz-cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("aaz-cart", JSON.stringify(cartItems));
   }, [cartItems]);
@@ -25,18 +23,14 @@ export const CartProvider = ({ children }) => {
   const addToCart = (product, quantity = 1) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
-
       if (existingItem) {
-        // Update quantity if item already exists
         return prevItems.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item,
         );
-      } else {
-        // Add new item to cart
-        return [...prevItems, { ...product, quantity }];
       }
+      return [...prevItems, { ...product, quantity }];
     });
   };
 
@@ -51,7 +45,6 @@ export const CartProvider = ({ children }) => {
       removeFromCart(productId);
       return;
     }
-
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.id === productId ? { ...item, quantity } : item,
@@ -75,7 +68,7 @@ export const CartProvider = ({ children }) => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
-  const value = {
+  const value = useMemo(() => ({
     cartItems,
     addToCart,
     removeFromCart,
@@ -83,7 +76,7 @@ export const CartProvider = ({ children }) => {
     clearCart,
     getCartTotal,
     getCartCount,
-  };
+  }), [cartItems]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
