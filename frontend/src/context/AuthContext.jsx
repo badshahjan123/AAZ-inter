@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
         setUser(data);
         return { success: true };
       }
-      return { success: false, message: data.message || 'Login failed' };
+      return { success: false, message: data.message || data.error || 'Login failed' };
     } catch (error) {
       return { success: false, message: 'Server error. Please try again later.' };
     }
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         }
         return { success: true, email: data.email, isVerified: data.isVerified };
       }
-      return { success: false, message: data.message || 'Signup failed' };
+      return { success: false, message: data.message || data.error || 'Signup failed' };
     } catch (error) {
       console.error('Signup error:', error);
       return { success: false, message: 'Server connection error. Please try again later.' };
@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         }
         return { success: true };
       }
-      return { success: false, message: data.message || 'Verification failed' };
+      return { success: false, message: data.message || data.error || 'Verification failed' };
     } catch (error) {
       return { success: false, message: 'Server error. Please try again later.' };
     }

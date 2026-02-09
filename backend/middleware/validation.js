@@ -16,11 +16,11 @@ const validateRegistration = (req, res, next) => {
     // Validate name
     if (!name || typeof name !== 'string') {
       errors.push('Name is required');
-    } else if (name.trim().length < 2 || name.trim().length > 50) {
-      errors.push('Name must be between 2 and 50 characters');
+    } else if (name.trim().length < 2 || name.trim().length > 100) {
+      errors.push('Name must be between 2 and 100 characters');
     } else {
-      // Simple character validation without complex regex
-      const nameRegex = /^[a-zA-Z\s'-]{2,50}$/;
+      // Allow letters, spaces, dots (for Dr.), hyphens, apostrophes and slashes (for Dept/Org)
+      const nameRegex = /^[a-zA-Z0-9\s.'\-\/]{2,100}$/;
       if (!nameRegex.test(name.trim())) {
         errors.push('Name contains invalid characters');
       }
@@ -39,31 +39,24 @@ const validateRegistration = (req, res, next) => {
     if (!password || typeof password !== 'string') {
       errors.push('Password is required');
     } else {
-      if (password.length < 8) {
-        errors.push('Password must be at least 8 characters');
+      if (password.length < 6) {
+        errors.push('Password must be at least 6 characters');
       }
-      // Simple password validation without complex regex
+      // Password complexity check
       const hasUpper = /[A-Z]/.test(password);
       const hasLower = /[a-z]/.test(password);
       const hasNumber = /[0-9]/.test(password);
-      const hasSpecial = /[!@#$%^&*]/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
       
-      if (!hasUpper) {
-        errors.push('Password must contain at least one uppercase letter');
-      }
-      if (!hasLower) {
-        errors.push('Password must contain at least one lowercase letter');
-      }
-      if (!hasNumber) {
-        errors.push('Password must contain at least one number');
-      }
-      if (!hasSpecial) {
-        errors.push('Password must contain at least one special character');
+      if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+        errors.push('Password must contain upper, lower, number, and special character');
       }
     }
 
     if (errors.length > 0) {
       return res.status(400).json({
+        success: false,
+        message: errors[0], // Primary message for UI
         error: 'Validation failed',
         details: errors
       });
@@ -72,8 +65,7 @@ const validateRegistration = (req, res, next) => {
     // Sanitize inputs
     req.body.name = validator.escape(name.trim());
     req.body.email = validator.normalizeEmail(email.toLowerCase().trim());
-    // Don't sanitize password (needs to be stored as-is for  hashing)
-
+    
     // Only allow these specific fields (prevent mass assignment)
     req.body = {
       name: req.body.name,
@@ -83,7 +75,11 @@ const validateRegistration = (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(400).json({ error: 'Invalid request data' });
+    res.status(400).json({ 
+      success: false,
+      message: 'Invalid request data',
+      error: 'Invalid request data' 
+    });
   }
 };
 

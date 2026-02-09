@@ -133,7 +133,7 @@ const Signup = () => {
                     type={showPassword ? 'text' : 'password'}
                     id="password"
                     name="password"
-                    placeholder="Create a strong password"
+                    placeholder="Min 6 chars + Upper + Number + Special"
                     value={formData.password}
                     onChange={handleChange}
                     required
@@ -146,6 +146,7 @@ const Signup = () => {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                <p className="field-hint">Min 6 characters, with uppercase, number & special char.</p>
               </div>
 
               <div className="form-group-modern">
