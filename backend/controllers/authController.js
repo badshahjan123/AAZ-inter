@@ -109,11 +109,11 @@ const registerUser = async (req, res, next) => {
            });
            return;
          } catch (err) {
-           console.error('Email sending failed or timed out:', err.message);
+           console.error('Email sending failed:', err.message);
            res.status(500);
            throw new Error(err.message === 'Email service timed out' 
-             ? 'Email service took too long to respond. Please try again in 5 minutes.' 
-             : `Email error: ${err.message}`);
+             ? 'Email service took too long to respond. Please check your connection.' 
+             : 'Email verification failed to send. Please ensure your email is correct.');
          }
       }
       res.status(400);
@@ -161,12 +161,12 @@ const registerUser = async (req, res, next) => {
            isVerified: false
          });
        } catch (err) {
-         console.error('Email sending failed or timed out:', err.message);
+         console.error('Email sending failed:', err.message);
          await User.deleteOne({ _id: user._id });
          res.status(500);
          throw new Error(err.message === 'Email service timed out' 
            ? 'Email service took too long to respond.' 
-           : `Email error: ${err.message}`);
+           : 'Email verification failed to send. Please ensure your email is correct.');
        }
     } else {
       res.status(400);

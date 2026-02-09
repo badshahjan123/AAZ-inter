@@ -11,11 +11,11 @@ const path = require("path");
 // Load env vars FIRST
 dotenv.config();
 
-// Debug Resend Config (Presence only)
-if (process.env.RESEND_API_KEY) {
-  console.log('✅ Resend API Configuration: DETECTED');
+// Debug SMTP Config (Presence only)
+if (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) {
+  console.log('✅ SMTP Configuration: DETECTED');
 } else {
-  console.log('❌ Resend API Configuration: MISSING (Email will fail)');
+  console.log('❌ SMTP Configuration: MISSING');
 }
 
 // Validate critical environment variables (secure comparison)
@@ -66,8 +66,7 @@ app.get('/api/health', (req, res) => {
     status: 'healthy', 
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
-    resend: process.env.RESEND_API_KEY ? 'DETECTED' : 'MISSING',
-    smtp_legacy: process.env.SMTP_EMAIL ? 'detected' : 'missing'
+    smtp: process.env.SMTP_EMAIL ? 'DETECTION_SUCCESS' : 'DETECTION_FAILED'
   });
 });
 
