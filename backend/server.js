@@ -50,6 +50,9 @@ connectDB();
 
 const app = express();
 
+// Trust proxy for rate-limiting (Requirement for Railway/Vercel/Netlify)
+app.set('trust proxy', 1);
+
 // ============================================
 // SECURITY MIDDLEWARE (Defense-in-Depth)
 // ============================================

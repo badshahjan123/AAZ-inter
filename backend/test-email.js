@@ -5,15 +5,15 @@ const sendTestEmail = async () => {
   console.log('TEST_START');
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: false, // true for 465, false for other ports
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: 465,
+      secure: true, 
       auth: {
         user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD // nodemailer handles spaces in newer versions, but better safe
+        pass: process.env.SMTP_PASSWORD 
       },
       tls: {
-       rejectUnauthorized: false // Helps with some self-signed cert issues, though likely not the issue here
+       rejectUnauthorized: false
       }
     });
 
