@@ -147,7 +147,7 @@ const registerUser = async (req, res, next) => {
          `;
          
          await sendEmail({
-           to: user.email,
+           email: user.email,
            subject: 'AAZ Medical - Verify Your Account',
            html: htmlContent
          });
@@ -292,7 +292,7 @@ const resendVerificationEmail = async (req, res, next) => {
       `;
       
       await sendEmail({
-        to: user.email,
+        email: user.email,
         subject: 'AAZ Medical - Verify Your Account',
         html: htmlContent
       });
