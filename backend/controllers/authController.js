@@ -66,7 +66,7 @@ const registerUser = async (req, res, next) => {
     const userExists = await User.findOne({ email });
     if (userExists) {
       res.status(400);
-      throw new Error('Invalid email or password'); // Generic error
+      throw new Error('User already exists');
     }
 
     // Generate Verification Token
