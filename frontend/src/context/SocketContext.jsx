@@ -1,12 +1,12 @@
-import { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import io from 'socket.io-client';
-import { API_URL } from '../config/api';
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import io from "socket.io-client";
+import { API_URL } from "../config/api";
 const SocketContext = createContext();
 
 export const useSocket = () => {
   const context = useContext(SocketContext);
   if (!context) {
-    throw new Error('useSocket must be used within SocketProvider');
+    throw new Error("useSocket must be used within SocketProvider");
   }
   return context;
 };
@@ -19,21 +19,21 @@ export const SocketProvider = ({ children }) => {
     let socketInstance;
     const connectSocket = () => {
       socketInstance = io(API_URL, {
-        transports: ['websocket', 'polling'],
+        transports: ["websocket", "polling"],
         timeout: 5000,
         autoConnect: true,
-        reconnection: false
+        reconnection: false,
       });
 
-      socketInstance.on('connect', () => {
+      socketInstance.on("connect", () => {
         setIsConnected(true);
       });
 
-      socketInstance.on('disconnect', () => {
+      socketInstance.on("disconnect", () => {
         setIsConnected(false);
       });
 
-      socketInstance.on('connect_error', () => {
+      socketInstance.on("connect_error", () => {
         setIsConnected(false);
       });
 
@@ -53,8 +53,6 @@ export const SocketProvider = ({ children }) => {
   const value = useMemo(() => ({ socket, isConnected }), [socket, isConnected]);
 
   return (
-    <SocketContext.Provider value={value}>
-      {children}
-    </SocketContext.Provider>
+    <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
   );
 };

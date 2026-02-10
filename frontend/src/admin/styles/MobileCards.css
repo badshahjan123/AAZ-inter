@@ -1,0 +1,78 @@
+/* Mobile Card Layout for Tables */
+.mobile-card-list {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .table-container .admin-table {
+    display: none;
+  }
+
+  .mobile-card-list {
+    display: block;
+  }
+
+  .mobile-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .mobile-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .mobile-card-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--admin-text-main);
+  }
+
+  .mobile-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mobile-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+
+  .mobile-card-label {
+    color: var(--admin-text-sub);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .mobile-card-value {
+    color: var(--admin-text-main);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .mobile-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .mobile-card-actions button {
+    flex: 1;
+    min-height: 40px;
+    font-size: 0.85rem;
+  }
+}

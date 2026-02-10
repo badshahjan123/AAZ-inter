@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { api, API_URL } from '../../config/api';
+import { api, API_URL } from "../../config/api";
 import {
   AlertCircle,
   CheckCircle,
@@ -36,16 +36,13 @@ const PaymentVerification = () => {
 
       console.log("🔍 Fetching pending payments...");
       console.log("📋 Admin Token:", token ? "✓ Present" : "✗ Missing");
-      const response = await fetch(
-        api("/api/payments/pending"),
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      const response = await fetch(api("/api/payments/pending"), {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch pending payments");
@@ -70,17 +67,14 @@ const PaymentVerification = () => {
     try {
       const token = localStorage.getItem("adminToken");
 
-      const response = await fetch(
-        api("/api/payments/approve"),
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ orderId: selectedOrder._id }),
+      const response = await fetch(api("/api/payments/approve"), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ orderId: selectedOrder._id }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to approve payment");
@@ -106,20 +100,17 @@ const PaymentVerification = () => {
     try {
       const token = localStorage.getItem("adminToken");
 
-      const response = await fetch(
-        api("/api/payments/reject"),
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            orderId: selectedOrder._id,
-            reason: rejectionReason || "No reason provided",
-          }),
+      const response = await fetch(api("/api/payments/reject"), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          orderId: selectedOrder._id,
+          reason: rejectionReason || "No reason provided",
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to reject payment");
@@ -234,7 +225,7 @@ const PaymentVerification = () => {
                     <div className="payment-proof-preview">
                       <p className="proof-label">Payment Proof Screenshot:</p>
                       <img
-                        src={`${API_URL}/${payment.paymentProof.replace(/\\/g, '/')}`}
+                        src={`${API_URL}/${payment.paymentProof.replace(/\\/g, "/")}`}
                         alt="Payment Proof"
                         className="proof-thumbnail"
                       />
@@ -310,7 +301,7 @@ const PaymentVerification = () => {
                 {selectedOrder.paymentProof ? (
                   <div className="payment-proof-full">
                     <img
-                      src={`${API_URL}/${selectedOrder.paymentProof.replace(/\\/g, '/')}`}
+                      src={`${API_URL}/${selectedOrder.paymentProof.replace(/\\/g, "/")}`}
                       alt="Payment Proof"
                       className="proof-image"
                     />
