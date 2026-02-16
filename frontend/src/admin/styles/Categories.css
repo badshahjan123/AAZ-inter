@@ -29,11 +29,11 @@
     padding: 1.25rem;
   }
   
-  .admin-table thead {
+  .categories-page .admin-table thead {
     display: none;
   }
   
-  .admin-table tr {
+  .categories-page .admin-table tr {
     display: block;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
@@ -42,7 +42,7 @@
     padding: 1rem;
   }
   
-  .admin-table td {
+  .categories-page .admin-table td {
     display: block;
     width: 100% !important;
     padding: 0.5rem 0 !important;
@@ -50,7 +50,7 @@
     text-align: left !important;
   }
   
-  .admin-table td:last-child {
+  .categories-page .admin-table td:last-child {
     border-top: 1px solid #f1f5f9 !important;
     margin-top: 0.5rem;
     padding-top: 1rem !important;
