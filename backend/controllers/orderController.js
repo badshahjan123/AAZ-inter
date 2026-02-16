@@ -217,29 +217,43 @@ const updateOrderStatus = async (req, res, next) => {
       );
     }
 
-    // 2. SPECIAL HANDLING: Stock Reduction
-    // Reduce stock when order moves to PROCESSING (or legacy CONFIRMED)
-    const shouldReduceStock =
-      (nextStatus === "PROCESSING" &&
-        ["PENDING", "CREATED", "PAID"].includes(currentStatus)) ||
-      (nextStatus === "CONFIRMED" && currentStatus === "CREATED");
+    // 2. SPECIAL HANDLING: Stock Reduction / Restoration
+    // A. Reduce stock when order moves to a "Confirmed" state if not already reduced
+    const confirmedStatuses = ["PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED", "CONFIRMED", "PAID"];
+    const shouldReduceStock = confirmedStatuses.includes(nextStatus) && !order.stockReduced;
 
-    if (shouldReduceStock && order.paymentMethod === "cod") {
+    if (shouldReduceStock) {
       for (const item of order.products) {
         const product = await Product.findById(item.product);
         if (product) {
           if (product.stock < item.quantity) {
             res.status(400);
             throw new Error(
-              `Insufficient stock for ${product.name}. Cannot confirm order.`,
+              `Insufficient stock for ${product.name}. Cannot proceed with order.`,
             );
           }
           product.stock -= item.quantity;
           await product.save();
         }
       }
+      order.stockReduced = true;
       console.log(
         `📦 STOCK DEDUCTED: Order ${orderId} moved to ${nextStatus}.`,
+      );
+    }
+
+    // B. Restore stock if order is CANCELLED and was previously reduced
+    if (nextStatus === "CANCELLED" && order.stockReduced) {
+      for (const item of order.products) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          product.stock += item.quantity;
+          await product.save();
+        }
+      }
+      order.stockReduced = false;
+      console.log(
+        `📦 STOCK RESTORED: Order ${orderId} was cancelled.`,
       );
     }
 

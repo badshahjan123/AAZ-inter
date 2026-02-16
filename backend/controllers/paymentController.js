@@ -206,6 +206,25 @@ const approvePayment = async (req, res, next) => {
     order.verifiedAt = new Date();
     order.paidAt = new Date();
 
+    // REDUCE STOCK ON PAYMENT APPROVAL
+    if (!order.stockReduced) {
+      for (const item of order.products) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          if (product.stock < item.quantity) {
+            res.status(400);
+            throw new Error(
+              `Insufficient stock for ${product.name}. Cannot approve payment.`,
+            );
+          }
+          product.stock -= item.quantity;
+          await product.save();
+        }
+      }
+      order.stockReduced = true;
+      console.log(`📦 STOCK DEDUCTED: Order ${order.orderNumber} payment approved.`);
+    }
+
     await order.save();
 
     console.log(
