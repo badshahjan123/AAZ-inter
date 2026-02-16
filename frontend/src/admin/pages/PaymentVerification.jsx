@@ -9,6 +9,7 @@ import {
   Check,
   X,
 } from "lucide-react";
+import { getAssetUrl } from "../../utils/helpers";
 import "../styles/PaymentVerification.css";
 const PaymentVerification = () => {
   const [pendingPayments, setPendingPayments] = useState([]);
@@ -225,7 +226,7 @@ const PaymentVerification = () => {
                     <div className="payment-proof-preview">
                       <p className="proof-label">Payment Proof Screenshot:</p>
                       <img
-                        src={`${API_URL}/${payment.paymentProof.replace(/\\/g, "/")}`}
+                        src={getAssetUrl(payment.paymentProof, API_URL)}
                         alt="Payment Proof"
                         className="proof-thumbnail"
                       />
@@ -301,7 +302,7 @@ const PaymentVerification = () => {
                 {selectedOrder.paymentProof ? (
                   <div className="payment-proof-full">
                     <img
-                      src={`${API_URL}/${selectedOrder.paymentProof.replace(/\\/g, "/")}`}
+                      src={getAssetUrl(selectedOrder.paymentProof, API_URL)}
                       alt="Payment Proof"
                       className="proof-image"
                     />

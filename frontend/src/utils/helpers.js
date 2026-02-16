@@ -90,3 +90,30 @@ export const getInitials = (name) => {
     .toUpperCase()
     .substring(0, 2);
 };
+// Get absolute asset URL (handles production/localhost and slashes)
+export const getAssetUrl = (path, baseUrl) => {
+  if (!path) return '';
+  
+  // 1. Clean up backslashes
+  let cleanPath = path.toString().replace(/\\/g, '/');
+  
+  // 2. Handle absolute URLs already present
+  if (cleanPath.startsWith('http')) {
+    // If it's a localhost URL but we are in production base, fix it
+    if (cleanPath.includes('localhost') && baseUrl && !baseUrl.includes('localhost')) {
+      const parts = cleanPath.split(/localhost:\d+/);
+      if (parts.length > 1) {
+        const pathPart = parts[1];
+        return `${baseUrl.replace(/\/$/, '')}${pathPart.startsWith('/') ? '' : '/'}${pathPart}`;
+      }
+    }
+    return cleanPath;
+  }
+  
+  // 3. Ensure a single leading slash for the relative path
+  const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+  
+  // 4. Combine with base URL
+  const base = (baseUrl || '').replace(/\/$/, '');
+  return `${base}${normalizedPath}`;
+};

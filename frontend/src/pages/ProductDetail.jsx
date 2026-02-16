@@ -17,7 +17,7 @@ import {
 import { formatPrice } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { sendWhatsAppMessage, whatsappMessages } from '../utils/helpers';
+import { sendWhatsAppMessage, whatsappMessages, getAssetUrl } from '../utils/helpers';
 import Button from '../components/common/Button';
 import ProductCard from '../components/product/ProductCard';
 import { api, API_URL } from '../config/api';
@@ -228,18 +228,7 @@ const ProductDetail = () => {
   const decrementQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   // Determine image source
-  let mainImage = product.image;
-  
-  if (mainImage) {
-    mainImage = mainImage.replace(/\\/g, '/');
-    if (mainImage.includes('localhost')) {
-       const pathPart = mainImage.split(/localhost:\d+/)[1] || mainImage;
-       mainImage = `${API_URL}${pathPart.startsWith('/') ? pathPart : '/' + pathPart}`;
-    } else if (mainImage.startsWith('/uploads') || mainImage.startsWith('uploads/')) {
-       const cleanPath = mainImage.startsWith('/') ? mainImage : `/${mainImage}`;
-       mainImage = `${API_URL}${cleanPath}`;
-    }
-  }
+  const mainImage = getAssetUrl(product.image, API_URL);
   
   // Fallback to placeholder if no image
   const imagePlaceholder = mainImage || `https://via.placeholder.com/800x800/0A74DA/FFFFFF?text=${encodeURIComponent(product.name)}`;

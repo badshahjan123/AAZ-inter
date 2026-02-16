@@ -7,6 +7,7 @@ import Button from "../common/Button";
 import Card from "../common/Card";
 import "./ProductCard.css";
 import { API_URL } from "../../config/api";
+import { getAssetUrl } from "../../utils/helpers";
 
 const ProductCard = memo(({ product }) => {
   const navigate = useNavigate();
@@ -22,23 +23,11 @@ const ProductCard = memo(({ product }) => {
     addToCart(product, 1);
   };
 
-  let imageSrc = product.image;
-  if (imageSrc) {
-    imageSrc = imageSrc.replace(/\\/g, "/");
-    if (imageSrc.includes("localhost")) {
-      const pathPart = imageSrc.split(/localhost:\d+/)[1] || imageSrc;
-      imageSrc = `${API_URL}${pathPart.startsWith("/") ? pathPart : "/" + pathPart}`;
-    } else if (
-      imageSrc.startsWith("/uploads") ||
-      imageSrc.startsWith("uploads/")
-    ) {
-      const cleanPath = imageSrc.startsWith("/") ? imageSrc : `/${imageSrc}`;
-      imageSrc = `${API_URL}${cleanPath}`;
-    }
-  }
-  if (!imageSrc) {
-    imageSrc = `https://via.placeholder.com/300x300/0A74DA/FFFFFF?text=${encodeURIComponent(product.name?.substring(0, 20) || "Product")}`;
-  }
+  // Determine image source
+  const mainImage = getAssetUrl(product.image, API_URL);
+
+  // Fallback to placeholder if no image
+  const imageSrc = mainImage || `https://via.placeholder.com/800x800/0A74DA/FFFFFF?text=${encodeURIComponent(product.name || "Product")}`;
   const hasStock =
     product.stock !== undefined ? product.stock > 0 : product.inStock;
 

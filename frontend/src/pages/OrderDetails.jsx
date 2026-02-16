@@ -5,6 +5,7 @@ import { useSocket } from "../context/SocketContext";
 import { formatPrice } from "../data/products";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
+import { formatDate, getAssetUrl } from "../utils/helpers";
 import { api, API_URL } from "../config/api";
 import {
   ArrowLeft,
@@ -405,7 +406,7 @@ const OrderDetails = () => {
                       <strong>Payment Proof Uploaded:</strong>
                       <div className="proof-preview">
                         <img
-                          src={`${API_URL}/${order.paymentProof}`}
+                          src={getAssetUrl(order.paymentProof, API_URL)}
                           alt="Payment Proof"
                           className="proof-image"
                         />
