@@ -212,7 +212,7 @@ const OrderDetails = () => {
           {/* 1. Ordered */}
           <div className="step-item completed">
             <div className="step-circle">
-              <CheckCircle size={20} />
+              <CheckCircle className="stepper-icon" size={24} />
             </div>
             <span>Ordered</span>
           </div>
@@ -233,9 +233,9 @@ const OrderDetails = () => {
               {order.paymentMethod === 'cod' || 
                ['approved', 'paid', 'APPROVED', 'PAID'].includes(order.paymentStatus) || 
                ['processing', 'shipped', 'delivered', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.orderStatus) ? (
-                <CheckCircle size={20} />
+                <CheckCircle className="stepper-icon" size={24} />
               ) : (
-                <Clock size={20} />
+                <Clock className="stepper-icon" size={24} />
               )}
             </div>
             <span>{order.paymentMethod === 'cod' ? 'Payment (COD)' : 'Payment'}</span>
@@ -253,9 +253,9 @@ const OrderDetails = () => {
           >
             <div className="step-circle">
               {['processing', 'shipped', 'delivered', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus) ? (
-                <CheckCircle size={20} />
+                <CheckCircle className="stepper-icon" size={24} />
               ) : (
-                <Package size={20} />
+                <Package className="stepper-icon" size={24} />
               )}
             </div>
             <span>Processing</span>
@@ -273,9 +273,9 @@ const OrderDetails = () => {
           >
             <div className="step-circle">
               {['shipped', 'delivered', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus) ? (
-                <Truck size={20} />
+                <Truck className="stepper-icon" size={24} />
               ) : (
-                <Truck size={20} style={{ opacity: 0.5 }} />
+                <Truck className="stepper-icon" size={24} style={{ opacity: 0.5 }} />
               )}
             </div>
             <span>Shipped</span>
@@ -291,9 +291,9 @@ const OrderDetails = () => {
           >
             <div className="step-circle">
               {['delivered', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus) ? (
-                <CheckCircle size={20} />
+                <CheckCircle className="stepper-icon" size={24} />
               ) : (
-                <CheckCircle size={20} style={{ opacity: 0.5 }} />
+                <CheckCircle className="stepper-icon" size={24} style={{ opacity: 0.5 }} />
               )}
             </div>
             <span>Delivered</span>
@@ -442,7 +442,7 @@ const OrderDetails = () => {
                     </div>
                   )}
 
-                  {order.paymentMethod === "bank" && order.paymentProof && (
+                  {order.paymentProof && (
                     <div className="payment-proof-display">
                       <strong>Payment Proof Uploaded:</strong>
                       <div className="proof-preview">

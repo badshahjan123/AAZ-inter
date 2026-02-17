@@ -610,13 +610,13 @@
 
   /* Mobile Stepper */
   .order-stepper {
-    padding: 10px 12px;
+    padding: 12px 14px;
     gap: 12px;
-    overflow-x: auto;
-    justify-content: flex-start;
+    justify-content: center;
     border-radius: 12px;
-    scrollbar-width: none;
     width: 100%;
+    overflow-x: hidden; /* Hide scroll if possible, we want it to fit */
+    flex-wrap: nowrap;
   }
 
   .order-stepper::-webkit-scrollbar {
@@ -630,9 +630,14 @@
   }
 
   .step-circle {
-    width: 22px;
-    height: 22px;
-    font-size: 10px;
+    width: 34px;
+    height: 34px;
+    font-size: 12px;
+  }
+
+  .stepper-icon {
+    width: 18px !important;
+    height: 18px !important;
   }
 
   /* Mobile Cards */
@@ -709,12 +714,12 @@
   }
 
   .order-stepper {
-    padding: 8px 10px;
-    gap: 8px;
+    padding: 10px 8px;
+    gap: 10px;
   }
 
   .step-item {
-    gap: 4px;
+    gap: 6px;
   }
 
   .step-item span:last-child {
