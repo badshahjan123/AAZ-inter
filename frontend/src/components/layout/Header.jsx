@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
   Menu,
@@ -38,6 +38,7 @@ const Header = () => {
   const dropdownTimeoutRef = useRef(null);
   const userMenuTimeoutRef = useRef(null);
   const searchRef = useRef(null);
+  const navigate = useNavigate();
 
   const { socket } = useSocket();
   const { showNotification, history, unreadCount, markAsRead, clearHistory } = useNotification();
@@ -514,6 +515,31 @@ const Header = () => {
                 <button onClick={closeMobileMenu}>
                   <X size={24} />
                 </button>
+              </div>
+
+              {/* Mobile Search Bar */}
+              <div className="mobile-search-section">
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (searchQuery.trim()) {
+                      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+                      closeMobileMenu();
+                    }
+                  }} 
+                  className="mobile-search-form"
+                >
+                  <input 
+                    type="text" 
+                    placeholder="Search products..." 
+                    className="mobile-search-input"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button type="submit" className="mobile-search-btn">
+                    <Search size={18} />
+                  </button>
+                </form>
               </div>
               <nav className="mobile-nav-modern">
                 {navigation.map((item) => (
