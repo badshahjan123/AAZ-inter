@@ -349,6 +349,8 @@ const loginUser = async (req, res, next) => {
         hospitalName: user.hospitalName || '',
         isAdmin: user.isAdmin,
         isVerified: user.isVerified,
+        twoFactorEnabled: !!user.twoFactorEnabled,
+        hasTwoFactorSecret: !!user.twoFactorSecret,
         token: generateToken(user._id),
       });
     } else {
@@ -720,6 +722,8 @@ const verify2FALogin = async (req, res, next) => {
         email: user.email,
         isAdmin: user.isAdmin,
         isVerified: user.isVerified,
+        twoFactorEnabled: !!user.twoFactorEnabled,
+        hasTwoFactorSecret: !!user.twoFactorSecret,
         token: generateToken(user._id),
       });
     } else {

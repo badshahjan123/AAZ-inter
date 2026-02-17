@@ -25,12 +25,16 @@ export const AuthProvider = ({ children }) => {
         try {
           const parsedUser = JSON.parse(storedUser);
           
-          const res = await cachedFetch(api('/api/auth/me'), {
+          const res = await fetch(api('/api/auth/me'), {
             headers: { Authorization: `Bearer ${parsedUser.token}` }
           });
           
           if (res.ok) {
-            setUser(parsedUser);
+            const freshData = await res.json();
+            // Merge stored token with fresh profile data
+            const mergedUser = { ...parsedUser, ...freshData };
+            setUser(mergedUser);
+            localStorage.setItem('user', JSON.stringify(mergedUser));
           } else {
             localStorage.removeItem('user');
             localStorage.removeItem('aaz-cart');
