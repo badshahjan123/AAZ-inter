@@ -25,7 +25,7 @@ const Cart = () => {
   const fromProfile = location.state?.from === 'profile';
 
   const suggestedProducts = products
-    .filter(p => !cartItems.find(item => item.id === p.id))
+    .filter(p => !cartItems.find(item => item._id === p._id))
     .slice(0, 4);
 
   return (
@@ -103,7 +103,7 @@ const Cart = () => {
             <div className="cart-frame-modern">
               <div className="cart-scroll-area">
                 {cartItems.map((item, index) => (
-                  <div key={`cart-item-${item.id || item._id || index}`} className="cart-item-modern">
+                  <div key={`cart-item-${item._id || index}`} className="cart-item-modern">
                     <div className="item-image-box">
                       <img
                         src={(() => {
@@ -138,11 +138,11 @@ const Cart = () => {
                         </div>
 
                         <div className="item-qty-selector">
-                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1} className="qty-act-btn">
+                          <button onClick={() => updateQuantity(item._id, item.quantity - 1)} disabled={item.quantity <= 1} className="qty-act-btn">
                             <Minus size={14} />
                           </button>
                           <span className="qty-val-display">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="qty-act-btn">
+                          <button onClick={() => updateQuantity(item._id, item.quantity + 1)} className="qty-act-btn">
                             <Plus size={14} />
                           </button>
                         </div>
@@ -152,7 +152,7 @@ const Cart = () => {
                           <span className="sub-amount-modern">{formatPrice(item.price * item.quantity)}</span>
                         </div>
 
-                        <button onClick={() => removeFromCart(item.id)} className="item-delete-btn" title="Remove Item">
+                        <button onClick={() => removeFromCart(item._id)} className="item-delete-btn" title="Remove Item">
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -242,7 +242,7 @@ const Cart = () => {
             <h2 className="cart-section-title">You Might Also Like</h2>
             <div className="cart-products-grid">
               {suggestedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           </div>
