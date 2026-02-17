@@ -17,8 +17,13 @@ import {
   Copy,
   CheckCircle,
   Upload,
+  ArrowRight,
+  ArrowLeft,
+  Truck,
+  Shield
 } from "lucide-react";
 import "./Checkout.css";
+import "./CheckoutMobile.css";
 const CheckoutContent = () => {
   const navigate = useNavigate();
   const { cartItems, getCartTotal, clearCart } = useCart();
@@ -26,24 +31,71 @@ const CheckoutContent = () => {
 
   const [paymentMethod, setPaymentMethod] = useState("cod"); // 'cod' or 'bank'
   const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-    city: "",
+    name: user?.name || "",
+    phone: user?.phone || "",
+    email: user?.email || "",
+    address: user?.address || "",
+    city: user?.city || "",
+    postalCode: "",
   });
+
+  // Pre-fill form from user profile if available
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        address: user.address || prev.address,
+        city: user.city || prev.city,
+        postalCode: user.postalCode || prev.postalCode
+      }));
+    }
+  }, [user]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [step, setStep] = useState(1); // 1: Info, 2: Payment
+  const [copiedField, setCopiedField] = useState(null);
+  
   const [bankDetails, setBankDetails] = useState(null);
   const [bankDetailsError, setBankDetailsError] = useState(null);
-  const [copiedField, setCopiedField] = useState(null);
   
   // Bank Transfer Payment Proof
   const [paymentProof, setPaymentProof] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
   const [proofPreview, setProofPreview] = useState(null);
+
+  const nextStep = () => {
+    if (validateStep1()) setStep(2);
+  };
+
+  const prevStep = () => setStep(1);
+
+  const validateStep1 = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!isValidPhone(formData.phone)) {
+      newErrors.phone = "Invalid phone number format";
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!formData.address.trim()) newErrors.address = "Address is required";
+    if (!formData.city.trim()) newErrors.city = "City is required";
+    if (!formData.postalCode.trim()) newErrors.postalCode = "Postal Code is required";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
 
   // Fetch bank details
@@ -77,7 +129,18 @@ const CheckoutContent = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Strict Input Validation
+    if (name === 'name') {
+      const alphaRegex = /^[a-zA-Z\s]*$/;
+      if (!alphaRegex.test(value)) return;
+    } else if (name === 'phone' || name === 'postalCode') {
+      const numericRegex = /^[0-9]*$/;
+      if (!numericRegex.test(value)) return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -121,14 +184,17 @@ const CheckoutContent = () => {
     }
     if (!formData.address.trim()) newErrors.address = "Address is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
+    if (!formData.postalCode.trim()) newErrors.postalCode = "Postal Code is required";
 
-    // Bank Transfer Validation
-    if (paymentMethod === "bank") {
+    if (paymentMethod === 'bank') {
       if (!paymentProof) {
         newErrors.paymentProof = "Payment screenshot is required";
       }
       if (!transactionId.trim()) {
         newErrors.transactionId = "Transaction ID is required";
+      }
+      if (!accountHolder.trim()) {
+        newErrors.accountHolder = "Account Holder Name is required";
       }
     }
 
@@ -138,7 +204,11 @@ const CheckoutContent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setErrorMessage("Please fill in all required fields.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    } 
 
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -249,434 +319,303 @@ const CheckoutContent = () => {
   return (
     <div className="checkout-page">
       <div className="container">
-        <h1 className="checkout-title">Checkout</h1>
+        <div className="checkout-nav-bar">
+          <button type="button" onClick={() => navigate('/cart')} className="back-to-cart-btn">
+            <ArrowLeft size={18} />
+            <span>Return to Cart</span>
+          </button>
+        </div>
 
-        <div className="checkout-layout">
-          {/* Checkout Form */}
-          <div className="checkout-form-section">
-            <form
-              onSubmit={handleSubmit}
-              className="checkout-form"
-              autoComplete="on"
-            >
-              {/* Customer Information */}
-              <Card className="form-section" padding="large">
-                <h2 className="form-section-title">Customer Information</h2>
-                <div className="form-grid">
-                  <Input
-                    label="Full Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Enter your full name"
-                    required
-                    error={errors.name}
-                    autoComplete="name"
-                  />
-                  <Input
-                    label="Phone Number"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="+92 300 1234567"
-                    required
-                    error={errors.phone}
-                    autoComplete="tel"
-                  />
-                  <Input
-                    label="Email Address"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="your.email@example.com"
-                    required
-                    error={errors.email}
-                    className="form-grid-full"
-                    autoComplete="email"
-                  />
-                  <Input
-                    label="Delivery Address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    placeholder="Street address, building, floor"
-                    required
-                    error={errors.address}
-                    className="form-grid-full"
-                    autoComplete="street-address"
-                  />
-                  <Input
-                    label="City"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Karachi, Lahore"
-                    required
-                    error={errors.city}
-                    autoComplete="address-level2"
-                  />
-                </div>
-              </Card>
+        <div className="checkout-header-modern">
+          <div className="title-group-modern">
+            <h1 className="checkout-title-modern">
+               {step === 1 ? 'Dispatch Information' : 'Acquisition Protocol'}
+            </h1>
+            <span className="checkout-subtitle-modern">Step {step} of 2</span>
+          </div>
+          
+          <div className="checkout-progress-track">
+            <div className={`progress-node ${step >= 1 ? 'node-active' : ''}`}>
+              <Building size={14} />
+              <span>Logistics</span>
+            </div>
+            <div className="progress-separator"></div>
+            <div className={`progress-node ${step === 2 ? 'node-active' : ''}`}>
+              <Banknote size={14} />
+              <span>Payment</span>
+            </div>
+          </div>
+        </div>
 
-              {/* Payment Method Selection */}
-              <Card className="form-section" padding="large">
-                <h2 className="form-section-title">Payment Method</h2>
-                <div className="payment-methods">
-                  {/* Cash on Delivery */}
-                  <label
-                    className={`payment-option ${paymentMethod === "cod" ? "payment-option-active" : ""}`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="cod"
-                      checked={paymentMethod === "cod"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                    />
-                    <Banknote size={24} />
-                    <div className="payment-option-content">
-                      <span>Cash on Delivery (COD)</span>
-                      <small>Pay when your order arrives</small>
+        <div className="checkout-frame-modern no-frame-scroll">
+          <div className="checkout-main-content">
+            <form onSubmit={handleSubmit} className="checkout-form-modern">
+              {step === 1 ? (
+                <div className="fade-in-node">
+                  <div className="form-section-modern">
+                    <div className="section-header-modern">
+                      <Building size={20} className="section-icon" />
+                      <h2 className="section-title-modern">Facility & Contact Information</h2>
                     </div>
-                  </label>
-
-                  {/* Bank Transfer */}
-                  <label
-                    className={`payment-option ${paymentMethod === "bank" ? "payment-option-active" : ""}`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="bank"
-                      checked={paymentMethod === "bank"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                    />
-                    <Building size={24} />
-                    <div className="payment-option-content">
-                      <span>Bank Transfer</span>
-                      <small>Transfer payment and upload proof</small>
+                    <div className="form-grid">
+                      <Input
+                        label="Full Name / Contact Person"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="Enter your full name"
+                        required
+                        error={errors.name}
+                        autoComplete="name"
+                      />
+                      <Input
+                        label="Postal Code"
+                        name="postalCode"
+                        value={formData.postalCode}
+                        onChange={handleInputChange}
+                        placeholder="e.g. 75600"
+                        required
+                        error={errors.postalCode}
+                        autoComplete="postal-code"
+                      />
+                      <Input
+                        label="Phone Number"
+                        name="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+92 300 1234567"
+                        required
+                        error={errors.phone}
+                        autoComplete="tel"
+                      />
+                      <Input
+                        label="Email Address"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="your.email@example.com"
+                        required
+                        error={errors.email}
+                        autoComplete="email"
+                      />
+                      <div className="form-grid-full">
+                        <Input
+                          label="Delivery Address"
+                          name="address"
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          placeholder="Street address, building, floor"
+                          required
+                          error={errors.address}
+                          autoComplete="street-address"
+                        />
+                      </div>
+                      <Input
+                        label="City"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        placeholder="e.g., Karachi, Lahore"
+                        required
+                        error={errors.city}
+                        autoComplete="address-level2"
+                      />
                     </div>
-                  </label>
-                </div>
-
-                {/* Bank Transfer Details Error */}
-                {paymentMethod === "bank" && bankDetailsError && (
-                  <div className="payment-error-msg">
-                    <AlertCircle size={16} />
-                    {bankDetailsError}
                   </div>
-                )}
 
-                {/* Bank Transfer Details Loading */}
-                {paymentMethod === "bank" &&
-                  !bankDetails &&
-                  !bankDetailsError && (
-                    <div className="bank-transfer-section">
-                      <div className="bank-info-box">
-                        <h3 className="bank-info-title">
-                          Bank Account Details
-                        </h3>
-                        <div
-                          style={{
-                            padding: "20px",
-                            textAlign: "center",
-                            color: "#666",
-                          }}
-                        >
-                          Loading bank details...
+                  <div className="step-actions">
+                    <button type="button" onClick={nextStep} className="primary-step-btn">
+                      Proceed to Payment Protocol
+                      <ArrowRight size={20} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="fade-in-node">
+                  <div className="form-section-modern">
+                    <div className="section-header-modern">
+                      <Banknote size={20} className="section-icon" />
+                      <h2 className="section-title-modern">Payment Protocol Selection</h2>
+                    </div>
+                    <div className="payment-grid-modern">
+                      {/* Cash on Delivery */}
+                      <label className={`payment-option ${paymentMethod === "cod" ? "payment-option-active" : ""}`}>
+                        <input type="radio" name="payment" value="cod" checked={paymentMethod === "cod"} onChange={(e) => setPaymentMethod(e.target.value)} />
+                        <Banknote size={24} />
+                        <div className="payment-option-content">
+                          <span>Cash on Delivery</span>
+                          <small>Institutional Standard Payment</small>
+                        </div>
+                      </label>
+
+                      {/* Bank Transfer */}
+                      <label className={`payment-option ${paymentMethod === "bank" ? "payment-option-active" : ""}`}>
+                        <input type="radio" name="payment" value="bank" checked={paymentMethod === "bank"} onChange={(e) => setPaymentMethod(e.target.value)} />
+                        <Building size={24} />
+                        <div className="payment-option-content">
+                          <span>Bank Transfer</span>
+                          <small>Direct Procurement Deposit</small>
+                        </div>
+                      </label>
+                    </div>
+
+                    {paymentMethod === "bank" && bankDetails && (
+                      <div className="bank-transfer-section animate-fade-in">
+                        <div className="bank-info-box">
+                          <h3 className="bank-info-title">Institutional Account Details</h3>
+                          <div className="bank-details-grid">
+                            <div className="bank-detail-value">
+                              <span>{bankDetails.bankName}</span>
+                              <button type="button" onClick={() => copyToClipboard(bankDetails.bankName, "bankName")} className="copy-btn">
+                                {copiedField === "bankName" ? <CheckCircle /> : <Copy />}
+                              </button>
+                            </div>
+                            <div className="bank-detail-value">
+                              <span className="mono">{bankDetails.accountNumber}</span>
+                              <button type="button" onClick={() => copyToClipboard(bankDetails.accountNumber, "accountNumber")} className="copy-btn">
+                                {copiedField === "accountNumber" ? <CheckCircle /> : <Copy />}
+                              </button>
+                            </div>
+                            <div className="bank-detail-value">
+                              <span className="mono">{bankDetails.iban}</span>
+                              <button type="button" onClick={() => copyToClipboard(bankDetails.iban, "iban")} className="copy-btn">
+                                {copiedField === "iban" ? <CheckCircle /> : <Copy />}
+                              </button>
+                            </div>
+                            <div className="bank-detail-value full-width">
+                              <span>Account Title: {bankDetails.accountHolderName || "Muhammad Faisal"}</span>
+                            </div>
+                          </div>
+
+                          <div className="payment-proof-modern">
+                            <h4 className="proof-title">Transaction Confirmation <span style={{color: '#ef4444'}}>*</span></h4>
+                            <div className="proof-grid-three">
+                              <div className="input-group">
+                                <input 
+                                  type="text" 
+                                  value={accountHolder} 
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (/^[a-zA-Z\s]*$/.test(val)) setAccountHolder(val);
+                                  }}
+                                  placeholder="Account Name"
+                                  className={errors.accountHolder ? 'error' : ''}
+                                />
+                              </div>
+                              <div className="input-group">
+                                <input 
+                                  type="text" 
+                                  value={transactionId} 
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (/^[0-9]*$/.test(val)) setTransactionId(val);
+                                  }}
+                                  placeholder="Transaction ID"
+                                  className={errors.transactionId ? 'error' : ''}
+                                  maxLength={20}
+                                />
+                              </div>
+                              <div className="proof-upload-zone">
+                                {!proofPreview ? (
+                                  <div className="upload-btn-placeholder">
+                                    <input type="file" id="proof-input" accept="image/*" onChange={handleFileChange} />
+                                    <label htmlFor="proof-input">
+                                      <Upload size={14} />
+                                      <span>Upload Proof</span>
+                                    </label>
+                                  </div>
+                                ) : (
+                                  <div className="preview-container-mini" onClick={() => setIsModalOpen(true)}>
+                                    <img src={proofPreview} alt="Proof" />
+                                    <button type="button" onClick={(e) => { e.stopPropagation(); setProofPreview(null); }}>&times;</button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
+                    )}
+                  </div>
+
+                  {errorMessage && (
+                    <div className="clinical-error-notice">
+                      <AlertCircle size={18} />
+                      <span>{errorMessage}</span>
                     </div>
                   )}
 
-                {/* Bank Transfer Details */}
-                {paymentMethod === "bank" && bankDetails && (
-                  <div className="bank-transfer-section animate-fade-in">
-                    <div className="bank-info-box">
-                      <h3 className="bank-info-title">Bank Account Details</h3>
-
-                      <div className="bank-detail-item">
-                        <label>Bank Name</label>
-                        <div className="bank-detail-value">
-                          <span>{bankDetails.bankName}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              copyToClipboard(bankDetails.bankName, "bankName")
-                            }
-                            className="copy-btn"
-                            title="Copy"
-                          >
-                            {copiedField === "bankName" ? (
-                              <CheckCircle size={16} />
-                            ) : (
-                              <Copy size={16} />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="bank-detail-item">
-                        <label>Account Holder</label>
-                        <div className="bank-detail-value">
-                          <span>{bankDetails.accountHolder}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              copyToClipboard(
-                                bankDetails.accountHolder,
-                                "accountHolder",
-                              )
-                            }
-                            className="copy-btn"
-                            title="Copy"
-                          >
-                            {copiedField === "accountHolder" ? (
-                              <CheckCircle size={16} />
-                            ) : (
-                              <Copy size={16} />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="bank-detail-item">
-                        <label>Account Number</label>
-                        <div className="bank-detail-value">
-                          <span className="mono">
-                            {bankDetails.accountNumber}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              copyToClipboard(
-                                bankDetails.accountNumber,
-                                "accountNumber",
-                              )
-                            }
-                            className="copy-btn"
-                            title="Copy"
-                          >
-                            {copiedField === "accountNumber" ? (
-                              <CheckCircle size={16} />
-                            ) : (
-                              <Copy size={16} />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="bank-detail-item">
-                        <label>IBAN</label>
-                        <div className="bank-detail-value">
-                          <span className="mono">{bankDetails.iban}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              copyToClipboard(bankDetails.iban, "iban")
-                            }
-                            className="copy-btn"
-                            title="Copy"
-                          >
-                            {copiedField === "iban" ? (
-                              <CheckCircle size={16} />
-                            ) : (
-                              <Copy size={16} />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="payment-proof-section" style={{ marginTop: '20px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
-                        <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
-                          Upload Payment Proof <span style={{ color: '#ef4444' }}>*</span>
-                        </h4>
-                        
-                        <div className="form-group" style={{ marginBottom: '16px' }}>
-                          <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                            Transaction ID / Reference Number
-                          </label>
-                          <input
-                            type="text"
-                            value={transactionId}
-                            onChange={(e) => {
-                              setTransactionId(e.target.value);
-                              if(errors.transactionId) setErrors(prev => ({...prev, transactionId: ''}));
-                            }}
-                            placeholder="e.g., TRX123456789"
-                            className={`input-field ${errors.transactionId ? 'input-error' : ''}`}
-                            style={{ 
-                              width: '100%', 
-                              padding: '10px 12px', 
-                              border: errors.transactionId ? '1px solid #ef4444' : '1px solid #d1d5db', 
-                              borderRadius: '6px',
-                              fontSize: '14px'
-                            }}
-                          />
-                          {errors.transactionId && <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>{errors.transactionId}</span>}
-                        </div>
-
-                        <div className="form-group" style={{ marginBottom: '16px' }}>
-                          <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                            Payment Screenshot
-                          </label>
-                          
-                          {!proofPreview ? (
-                            <div className={`file-upload-box ${errors.paymentProof ? 'error' : ''}`} style={{
-                              border: errors.paymentProof ? '2px dashed #ef4444' : '2px dashed #d1d5db',
-                              borderRadius: '8px',
-                              padding: '24px',
-                              textAlign: 'center',
-                              cursor: 'pointer',
-                              background: '#f9fafb',
-                              transition: 'all 0.2s'
-                            }}>
-                              <input
-                                type="file"
-                                id="payment-proof-upload"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                style={{ display: 'none' }}
-                              />
-                              <label htmlFor="payment-proof-upload" style={{ cursor: 'pointer', width: '100%', display: 'block' }}>
-                                <Upload size={24} style={{ color: '#6b7280', marginBottom: '8px' }} />
-                                <p style={{ margin: 0, fontSize: '14px', color: '#4b5563' }}>Click to upload screenshot</p>
-                                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#9ca3af' }}>JPG, PNG or WEBP (Max 5MB)</p>
-                              </label>
-                            </div>
-                          ) : (
-                            <div className="proof-preview" style={{ position: 'relative', marginTop: '10px' }}>
-                              <img 
-                                src={proofPreview} 
-                                alt="Payment Proof" 
-                                style={{ width: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #e5e7eb' }} 
-                              />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setPaymentProof(null);
-                                  setProofPreview(null);
-                                }}
-                                style={{
-                                  position: 'absolute',
-                                  top: '8px',
-                                  right: '8px',
-                                  background: 'rgba(0,0,0,0.6)',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '50%',
-                                  width: '24px',
-                                  height: '24px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                &times;
-                              </button>
-                            </div>
-                          )}
-                          {errors.paymentProof && <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>{errors.paymentProof}</span>}
-                        </div>
-                      </div>
-
-                      <div className="bank-instructions">
-                        <p>
-                          <strong>📋 Transfer Instructions:</strong>
-                        </p>
-                        <ul className="instructions-list">
-                          <li>Use your mobile banking or online banking app</li>
-                          <li>
-                            Select "Transfer Funds" and enter the account
-                            details above
-                          </li>
-                          <li>
-                            Reference: Enter your Name or Order details
-                          </li>
-                          <li>Complete the transfer</li>
-                          <li>
-                            Take a screenshot of the successful transfer
-                            confirmation
-                          </li>
-                          <li>
-                            <strong>Upload the screenshot and Enter Transaction ID above to place order</strong>
-                          </li>
-                          <li>
-                            Your order will be confirmed once verified by our
-                            team
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
+                  <div className="step-actions-split">
+                    <button type="button" onClick={prevStep} className="secondary-step-btn">
+                      Back to Logistics
+                    </button>
+                    <button type="submit" className="confirm-order-btn" disabled={isSubmitting}>
+                      {isSubmitting ? 'Verifying Session...' : 'Place Procurement Order'}
+                    </button>
                   </div>
-                )}
-              </Card>
-
-              {/* Error Message */}
-              {errorMessage && (
-                <div className="payment-error-msg">
-                  <AlertCircle size={16} />
-                  {errorMessage}
                 </div>
               )}
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="large"
-                fullWidth
-                loading={isSubmitting}
-              >
-                {isSubmitting ? "Processing..." : "Place Order"}
-              </Button>
-
-              {/* Security Notice */}
-              <div className="payment-security-tip">
-                <ShieldCheck size={16} className="security-icon" />
-                <span>Your information is encrypted and secure.</span>
-              </div>
             </form>
           </div>
 
-          {/* Order Summary */}
-          <div className="checkout-summary-wrapper">
-            <Card className="checkout-summary" padding="large">
-              <h2 className="summary-title">
-                <Package size={24} />
-                Order Summary
-              </h2>
+          <div className="checkout-summary-fixed">
+            <div className="summary-card-modern">
+              <div className="summary-header">
+                <Package size={20} className="package-icon" />
+                <h2 className="summary-title-modern">Order Insights</h2>
+              </div>
 
-              <div className="summary-items">
+              <div className="summary-items-list">
                 {cartItems.map((item) => (
-                  <div key={item._id || item.id} className="summary-item">
-                    <div className="summary-item-info">
-                      <span className="summary-item-name">{item.name}</span>
-                      <span className="summary-item-qty">
-                        Qty: {item.quantity}
-                      </span>
+                  <div key={item._id || item.id} className="summary-item-modern">
+                    <div className="item-head">
+                      <span className="item-name-sm">{item.name}</span>
+                      <span className="item-price-sm">{formatPrice(item.price * item.quantity)}</span>
                     </div>
-                    <span className="summary-item-price">
-                      {formatPrice(item.price * item.quantity)}
-                    </span>
+                    <div className="item-foot">
+                      <span className="item-qty-tag">Quantity: {item.quantity}</span>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <div className="summary-divider"></div>
-
-              <div className="summary-total">
-                <span>Total Amount</span>
-                <span className="summary-total-value">
-                  {formatPrice(getCartTotal())}
-                </span>
+              <div className="calculation-grid">
+                <div className="calc-row">
+                  <span>Logistics</span>
+                  <span className="calc-free">Inclusive</span>
+                </div>
+                <div className="calc-row total-highlight">
+                  <span>Payable Amount</span>
+                  <span className="total-value-modern">{formatPrice(getCartTotal())}</span>
+                </div>
               </div>
-            </Card>
+
+              <div className="trust-meter-modern">
+                <div className="trust-item">
+                  <Shield size={14} />
+                  <span>Verified Secure Checkout</span>
+                </div>
+                <div className="trust-item">
+                  <Truck size={14} />
+                  <span>Logistics Sync Protocol</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+      
+      {/* Proof Preview Modal */}
+      {isModalOpen && proofPreview && (
+        <div className="proof-modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="proof-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="proof-modal-close" onClick={() => setIsModalOpen(false)}>&times;</button>
+            <img src={proofPreview} alt="Payment Proof Full" className="proof-modal-img" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

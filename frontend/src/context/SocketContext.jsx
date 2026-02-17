@@ -18,9 +18,8 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     let socketInstance;
     const connectSocket = () => {
-      // Only connect if user is on order tracking pages
-      const shouldConnect = window.location.pathname.includes('/order') || 
-                           window.location.pathname.includes('/admin');
+      // Allow connection on all pages for global notifications
+      const shouldConnect = true;
       
       if (!shouldConnect) return;
 
@@ -28,28 +27,32 @@ export const SocketProvider = ({ children }) => {
         transports: ["websocket", "polling"],
         timeout: 5000,
         autoConnect: true,
-        reconnection: false,
+        reconnection: true, // Enable reconnection
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
       });
 
       socketInstance.on("connect", () => {
         setIsConnected(true);
+        console.log('🔌 Socket Connected');
       });
 
       socketInstance.on("disconnect", () => {
         setIsConnected(false);
+        console.log('🔌 Socket Disconnected');
       });
 
-      socketInstance.on("connect_error", () => {
+      socketInstance.on("connect_error", (error) => {
         setIsConnected(false);
+        console.log('🔌 Socket Connection Error:', error);
       });
 
       setSocket(socketInstance);
     };
 
-    const timer = setTimeout(connectSocket, 2000);
+    connectSocket();
 
     return () => {
-      clearTimeout(timer);
       if (socketInstance) {
         socketInstance.disconnect();
       }

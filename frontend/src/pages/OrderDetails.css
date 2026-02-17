@@ -1,270 +1,358 @@
-/* Order Details Tracking Styles */
+/* ========================================
+   ORDER DETAILS - MODERN & PROFESSIONAL
+   Matches Checkout/OrderConfirmation Theme
+   ======================================== */
+
 .order-details-page {
-  padding: var(--spacing-2xl) 0;
-  background-color: #f9fafb;
-  min-height: calc(100vh - 80px);
-  padding-bottom: var(--spacing-3xl);
+  min-height: calc(100vh - 70px);
+  background-color: var(--color-background);
+  padding: 32px 0;
+  font-family: 'Inter', sans-serif;
 }
 
-/* Tracking Stepper */
-.order-stepper {
-  display: flex;
-  justify-content: space-between;
+.order-details-container {
   max-width: 900px;
-  margin: var(--spacing-xl) auto var(--spacing-2xl);
-  position: relative;
-  padding: 0 var(--spacing-lg);
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-.order-stepper::before {
-  content: "";
-  position: absolute;
-  top: 20px;
-  left: 50px;
-  right: 50px;
-  height: 2px;
-  background-color: #e5e7eb;
-  z-index: 1;
-}
-
-.step-item {
-  position: relative;
-  z-index: 2;
+/* Page Header */
+.page-header {
+  margin-bottom: 24px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-  width: 80px;
+  gap: 16px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
   text-align: center;
 }
 
+/* Order Stepper - Compact Modern */
+.order-stepper {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  max-width: 750px;
+  margin: 0 auto 32px;
+  background: white;
+  padding: 14px 24px;
+  border-radius: 100px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  position: relative;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 12px;
+  position: relative;
+}
+
+.step-item.active,
+.step-item.completed {
+  color: #2563eb;
+}
+
 .step-circle {
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background-color: white;
-  border: 2px solid #e5e7eb;
+  background: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9ca3af;
-  transition: all 0.3s ease;
-}
-
-.step-item.completed .step-circle {
-  background-color: #10b981;
-  border-color: #10b981;
-  color: white;
+  color: #64748b;
+  transition: all 0.2s;
 }
 
 .step-item.active .step-circle {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background: #2563eb;
   color: white;
-  box-shadow: 0 0 0 4px rgba(10, 116, 218, 0.2);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
-.step-item span {
-  font-size: 11px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
+.step-item.completed .step-circle {
+  background: #dbeafe;
+  color: #2563eb;
 }
 
-.step-item.completed span,
-.step-item.active span {
-  color: #111827;
-}
-
-/* Layout */
+/* Layout - Single Column Centered */
 .order-details-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: var(--spacing-xl);
-  margin-top: var(--spacing-xl);
+  display: block;
+  max-width: 100%;
 }
 
+.order-details-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.order-details-sidebar {
+  display: none;
+}
+
+/* Card Styling */
+.order-info-card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.whatsapp-inquiry-card {
+  display: none;
+}
+
+/* Order Header */
 .order-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f5f9;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
+.order-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  font-family: 'Monaco', 'Consolas', monospace;
+  letter-spacing: 0.5px;
+}
+
+.order-date {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Badge Styling - Modern Pill */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.badge-pending,
+.badge-created,
+.badge-payment-pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.badge-processing,
+.badge-confirmed,
+.badge-paid {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.badge-shipped {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: #4338ca;
+  border: 1px solid #a5b4fc;
+}
+
+.badge-delivered,
+.badge-completed {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.badge-cancelled {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Order Sections */
 .order-section {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.order-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .order-section h3 {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: var(--font-size-md);
-  margin-bottom: var(--spacing-md);
-  color: #111827;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
 }
 
+/* Info Grid */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
-  background: #f9fafb;
-  padding: var(--spacing-lg);
-  border-radius: var(--radius-md);
+  gap: 10px;
+  background: var(--color-background);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
 .info-full {
   grid-column: span 2;
 }
 
+.info-grid div {
+  font-size: 14px;
+  color: #475569;
+}
+
+.info-grid strong {
+  color: #0f172a;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* Order Items */
 .order-items {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 12px;
 }
 
 .order-item {
   display: flex;
   justify-content: space-between;
-  padding: var(--spacing-md);
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: var(--radius-sm);
+  align-items: center;
+  padding: 16px;
+  background: var(--color-background);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.order-item:hover {
+  border-color: #cbd5e1;
+  transform: translateX(2px);
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .item-name {
-  font-weight: 600;
-}
-.item-qty {
-  color: #6b7280;
-  display: block;
-  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 14px;
 }
 
+.item-qty {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.item-price {
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 15px;
+}
+
+/* Order Total */
 .order-total {
   display: flex;
   justify-content: space-between;
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
-  border-top: 2px solid #f3f4f6;
-  font-size: var(--font-size-lg);
-  font-weight: bold;
-  color: var(--color-primary);
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px dashed #e2e8f0;
+  font-size: 20px;
+  font-weight: 800;
 }
 
-/* Sidebar */
-.order-details-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
+.total-value {
+  color: #2563eb;
+  letter-spacing: -0.02em;
 }
 
-.bank-details-card {
-  background-color: #f0fdf4;
-  border-color: #bbf7d0;
-}
-.upload-proof-card {
-  border-top: 4px solid var(--color-primary);
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-xs);
-  font-size: 13px;
+/* WhatsApp Action Button at Bottom */
+.whatsapp-action {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid #f1f5f9;
+  text-align: center;
 }
 
-.proof-image img {
-  width: 100%;
-  border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-md);
-}
-
-.status-verified,
-.status-pending,
-.status-failed {
-  display: flex;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
-  margin-top: var(--spacing-md);
-}
-
-.status-verified {
-  background: #ecfdf5;
-  color: #065f46;
-}
-.status-pending {
-  background: #fffbeb;
-  color: #92400e;
-}
-.status-failed {
-  background: #fef2f2;
-  color: #991b1b;
-}
-
-/* Badge Colors */
-.badge {
-  padding: 6px 14px;
-  border-radius: 50px;
-  font-size: 11px;
-  font-weight: 700;
+.whatsapp-action h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0 0 12px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.badge-created {
-  background: #e0e7ff;
-  color: #4338ca;
-}
-.badge-payment-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-.badge-paid {
-  background: #d1fae5;
-  color: #065f46;
-}
-.badge-confirmed {
-  background: #dcfce7;
-  color: #15803d;
-}
-.badge-processing {
-  background: #dcfce7;
-  color: #15803d;
-}
-.badge-shipped {
-  background: #ffedd5;
-  color: #9a3412;
-}
-.badge-completed {
-  background: #10b981;
+.whatsapp-action button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-}
-.badge-delivered {
-  background: #10b981;
-  color: white;
-}
-.badge-cancelled {
-  background: #fee2e2;
-  color: #b91c1c;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Payment Information Section */
+.whatsapp-action button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.4);
+}
+
+/* Payment Info */
 .payment-info {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 14px;
 }
 
 .payment-row {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid #e5e7eb;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .payment-row:last-child {
@@ -273,11 +361,13 @@
 
 .payment-row span:first-child {
   font-weight: 600;
-  color: #6b7280;
+  color: #64748b;
+  font-size: 13px;
 }
 
 .payment-row span:last-child {
-  color: #111827;
+  color: #0f172a;
+  font-size: 14px;
 }
 
 .capitalize {
@@ -285,11 +375,11 @@
 }
 
 .mono {
-  font-family: "Monaco", "Courier New", monospace;
+  font-family: 'Monaco', 'Consolas', monospace;
   font-size: 12px;
-  background: #f3f4f6;
+  background: var(--color-gray-100);
   padding: 6px 10px;
-  border-radius: 4px;
+  border-radius: 6px;
   letter-spacing: 0.5px;
 }
 
@@ -298,15 +388,36 @@
   user-select: all;
 }
 
-/* Verification Badge */
+/* Status Badges in Payment Info */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-processing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Verification Badges */
 .verification-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: 6px;
   padding: 8px 14px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .verification-badge.pending {
@@ -315,99 +426,105 @@
 }
 
 .verification-badge.approved {
-  background: #d1fae5;
-  color: #065f46;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .verification-badge.rejected {
   background: #fee2e2;
   color: #991b1b;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 /* Rejection Details */
 .rejection-details {
   background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  margin: var(--spacing-md) 0;
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
 }
 
 .rejection-details strong {
   color: #991b1b;
   display: block;
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 
 .rejection-message {
   color: #7f1d1d;
-  margin: 0;
+  margin: 0 0 8px 0;
   line-height: 1.6;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .rejection-note {
   display: block;
-  margin-top: var(--spacing-xs);
   color: #b91c1c;
   font-style: italic;
+  font-size: 12px;
 }
 
 /* Payment Proof Display */
 .payment-proof-display {
-  margin: var(--spacing-md) 0;
-  padding: var(--spacing-md);
-  background: #f0f9ff;
-  border-radius: var(--radius-md);
-  border: 1px solid #bae6fd;
+  margin: 20px auto;
+  padding: 0;
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #bae6fd;
+  max-width: 600px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .payment-proof-display strong {
   display: block;
-  margin-bottom: var(--spacing-md);
+  padding: 16px 20px;
+  margin-bottom: 0;
   color: #0369a1;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 14px;
+  background: #f0f9ff;
+  border-bottom: 1px solid #bae6fd;
+  border-radius: 14px 14px 0 0;
 }
 
 .proof-preview {
-  border-radius: var(--radius-md);
+  border-radius: 0 0 14px 14px;
   overflow: hidden;
-  background: white;
-  padding: var(--spacing-sm);
-  border: 1px solid #e5e7eb;
+  background: var(--color-background);
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .proof-image {
   width: 100%;
-  max-height: 400px;
+  max-height: 250px;
   object-fit: contain;
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* WhatsApp Inquiry Card */
-.whatsapp-inquiry-card {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border: 2px solid #86efac;
-  margin-top: var(--spacing-xl);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+.proof-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
+
+
 
 .inquiry-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .inquiry-header h3 {
   margin: 0;
-  font-size: var(--font-size-lg);
+  font-size: 18px;
   color: #065f46;
   font-weight: 700;
 }
@@ -416,96 +533,127 @@
   color: #10b981;
 }
 
-.whatsapp-inquiry-card p {
-  color: #6b7280;
-  line-height: 1.6;
-}
-
 .whatsapp-inquiry-card button {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border: none;
   color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  font-size: 14px;
+  transition: all 0.2s;
+  box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.3);
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .whatsapp-inquiry-card button:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.4);
 }
 
-/* Ensure main content area contains all cards properly */
-.order-details-main {
+/* Admin Notes */
+.admin-notes {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  padding: 14px;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+
+.admin-notes strong {
+  display: block;
+  color: #1e40af;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.admin-notes p {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Loading State */
+.loading {
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 500;
 }
 
-.order-info-card {
-  margin-bottom: 0;
-}
-
+/* Responsive */
 @media (max-width: 768px) {
   .order-details-page {
-    padding: 1rem 0;
+    padding: 24px 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 24px;
   }
 
   /* Mobile Stepper */
   .order-stepper {
-    padding: 0 0.75rem;
-    margin: 1rem auto 1.5rem;
+    padding: 12px 16px;
+    gap: 16px;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .order-stepper::before {
-    display: none;
+    justify-content: flex-start;
+    border-radius: 16px;
   }
 
   .step-item {
-    width: 70px;
     min-width: 70px;
+    font-size: 10px;
   }
 
   .step-circle {
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
   }
 
-  .step-item span {
-    font-size: 0.625rem;
-  }
-
-  /* Mobile Layout */
-  .order-details-layout {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 0 0.75rem;
+  /* Mobile Cards */
+  .order-info-card,
+  .whatsapp-inquiry-card {
+    padding: 20px;
+    border-radius: 16px;
   }
 
   .order-header {
     flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
+    gap: 12px;
+  }
+
+  .order-header h2 {
+    font-size: 20px;
   }
 
   .order-section {
-    margin-bottom: 1rem;
+    margin-bottom: 20px;
   }
 
   .order-section h3 {
-    font-size: 1rem;
-    margin-bottom: 0.75rem;
+    font-size: 15px;
   }
 
   /* Mobile Info Grid */
   .info-grid {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
-    padding: 1rem;
+    padding: 16px;
   }
 
   .info-full {
@@ -513,140 +661,54 @@
   }
 
   /* Mobile Order Items */
-  .order-items {
-    gap: 0.75rem;
-  }
-
   .order-item {
     flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.875rem;
+    align-items: flex-start;
+    gap: 8px;
   }
 
-  .item-name {
-    font-size: 0.9375rem;
+  .item-price {
+    align-self: flex-end;
   }
 
-  .item-qty {
-    font-size: 0.75rem;
-  }
-
-  .order-total {
-    margin-top: 1rem;
-    padding-top: 0.75rem;
-    font-size: 1.125rem;
-  }
-
-  /* Mobile Sidebar */
-  .order-details-sidebar {
-    gap: 1rem;
-  }
-
-  /* Mobile Payment Info */
+  /* Mobile Payment Row */
   .payment-row {
     grid-template-columns: 1fr;
-    gap: 0.25rem;
-    padding: 0.75rem 0;
+    gap: 4px;
   }
 
   .payment-row span:first-child {
-    font-size: 0.75rem;
-  }
-
-  .payment-row span:last-child {
-    font-size: 0.875rem;
-  }
-
-  .mono {
-    font-size: 0.6875rem;
-    padding: 4px 8px;
-  }
-
-  /* Mobile Proof Display */
-  .payment-proof-display {
-    padding: 0.875rem;
+    font-size: 11px;
   }
 
   .proof-image {
     max-height: 300px;
   }
 
-  /* Mobile Verification Badge */
-  .verification-badge {
-    font-size: 0.75rem;
-    padding: 6px 10px;
-  }
-
-  /* Mobile Rejection Details */
-  .rejection-details {
-    padding: 0.875rem;
-  }
-
-  .rejection-message {
-    font-size: 0.8125rem;
-  }
-
-  /* Mobile WhatsApp Card */
-  .whatsapp-inquiry-card {
-    margin-top: 1rem;
-  }
-
-  .inquiry-header h3 {
-    font-size: 1rem;
-  }
-
-  .whatsapp-inquiry-card p {
-    font-size: 0.875rem;
-  }
-
   .whatsapp-inquiry-card button {
-    width: 100%;
     min-height: 44px;
-  }
-
-  /* Mobile Badge */
-  .badge {
-    padding: 4px 10px;
-    font-size: 0.625rem;
-  }
-
-  /* Mobile Bank Details */
-  .detail-row {
-    flex-direction: column;
-    gap: 0.25rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.8125rem;
   }
 }
 
 @media (max-width: 480px) {
   .order-details-page {
-    padding: 0.75rem 0;
+    padding: 16px 0;
   }
 
-  .order-details-layout {
-    padding: 0 0.5rem;
+  .container {
+    padding: 0 12px;
   }
 
   .order-stepper {
-    padding: 0 0.5rem;
+    padding: 10px 12px;
   }
 
   .step-item {
-    width: 60px;
     min-width: 60px;
   }
 
-  .step-circle {
-    width: 32px;
-    height: 32px;
-  }
-
-  .order-section h3 {
-    font-size: 0.9375rem;
-  }
-
-  .info-grid {
-    padding: 0.875rem;
+  .order-info-card,
+  .whatsapp-inquiry-card {
+    padding: 16px;
   }
 }

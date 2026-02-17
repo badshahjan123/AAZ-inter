@@ -1,7 +1,9 @@
 import { memo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShoppingCart, Eye } from "lucide-react";
+import { ShoppingCart, Eye, Heart } from "lucide-react";
 import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
+import { useAuth } from "../../context/AuthContext";
 import { formatPrice } from "../../data/products";
 import Button from "../common/Button";
 import Card from "../common/Card";
@@ -12,7 +14,12 @@ import { getAssetUrl } from "../../utils/helpers";
 const ProductCard = memo(({ product }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { toggleWishlist, wishlistItems } = useWishlist();
+  const { user } = useAuth();
+  
   const productId = product._id || product.id;
+
+  const isInWishlist = wishlistItems.some(item => item.product._id === productId);
 
   const handleViewProduct = () => {
     navigate(`/products/${productId}`);
@@ -21,6 +28,15 @@ const ProductCard = memo(({ product }) => {
   const handleAddToCart = (e) => {
     e.stopPropagation();
     addToCart(product, 1);
+  };
+
+  const handleWishlistToggle = async (e) => {
+    e.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    await toggleWishlist(product);
   };
 
   // Determine image source
@@ -54,6 +70,13 @@ const ProductCard = memo(({ product }) => {
             Out of Stock
           </span>
         )}
+        <button 
+          className={`card-wishlist-btn ${isInWishlist ? 'active' : ''}`}
+          onClick={handleWishlistToggle}
+          title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart size={16} fill={isInWishlist ? "#FF5252" : "none"} color={isInWishlist ? "#FF5252" : "#64748b"} />
+        </button>
       </div>
       <div className="product-card-content">
         <h3 className="product-card-name">{product.name}</h3>

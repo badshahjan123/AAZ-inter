@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ShoppingCart, 
@@ -18,6 +18,7 @@ import { formatPrice } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { sendWhatsAppMessage, whatsappMessages, getAssetUrl } from '../utils/helpers';
+import { useWishlist } from '../context/WishlistContext';
 import Button from '../components/common/Button';
 import ProductCard from '../components/product/ProductCard';
 import { api, API_URL } from '../config/api';
@@ -36,8 +37,14 @@ const ProductDetail = () => {
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(false);
-  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const { wishlistItems, toggleWishlist, loading: wishlistLoadingExternal } = useWishlist();
+  const [toggleLoading, setToggleLoading] = useState(false);
+
+  const isInWishlist = useMemo(() => {
+    return wishlistItems.some(item => item.product._id === id);
+  }, [wishlistItems, id]);
+
+  const wishlistLoading = toggleLoading || wishlistLoadingExternal;
   
   // Reset scroll and state when ID changes
   useEffect(() => {
@@ -66,11 +73,6 @@ const ProductDetail = () => {
         // Fetch reviews and stats
         fetchReviews(data._id);
         fetchReviewStats(data._id);
-        
-        // Check wishlist status if user is logged in
-        if (user) {
-          checkWishlistStatus(data._id);
-        }
 
       } catch (err) {
         console.error(err);
@@ -103,47 +105,13 @@ const ProductDetail = () => {
     }
   };
 
-  const checkWishlistStatus = async (productId) => {
-    try {
-      const res = await fetch(api(`/api/wishlist/check/${productId}`), {
-        headers: { 'Authorization': `Bearer ${user.token}` }
-      });
-      const data = await res.json();
-      setIsInWishlist(data.inWishlist);
-    } catch (err) {
-      console.error('Failed to check wishlist status:', err);
-    }
-  };
 
   const handleWishlistToggle = async () => {
-    if (!user) {
+    setToggleLoading(true);
+    const result = await toggleWishlist(product);
+    setToggleLoading(false);
+    if (!result.success && result.message === 'Please login first') {
       navigate('/login');
-      return;
-    }
-
-    setWishlistLoading(true);
-    try {
-      if (isInWishlist) {
-        await fetch(api(`/api/wishlist/${product._id}`), {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${user.token}` }
-        });
-        setIsInWishlist(false);
-      } else {
-        await fetch(api('/api/wishlist'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`
-          },
-          body: JSON.stringify({ productId: product._id })
-        });
-        setIsInWishlist(true);
-      }
-    } catch (err) {
-      console.error('Wishlist error:', err);
-    } finally {
-      setWishlistLoading(false);
     }
   };
 
@@ -242,7 +210,7 @@ const ProductDetail = () => {
           <ChevronRight size={14} />
           <Link to="/products">Products</Link>
           <ChevronRight size={14} />
-          <Link to={`/products?category=${category?.slug}`}>{category?.name || 'Category'}</Link>
+          <Link to={`/products?category=${category?._id || 'all'}`}>{category?.name || 'Category'}</Link>
           <ChevronRight size={14} />
           <span className="current-crumb">{product.name}</span>
         </nav>
@@ -293,9 +261,6 @@ const ProductDetail = () => {
               <span className="price-label">Excl. Tax</span>
             </div>
 
-            <div className="product-short-desc">
-              <p>{product.description}</p>
-            </div>
 
             {/* Quantity and Actions */}
             <div className="product-actions-wrapper">
@@ -551,7 +516,7 @@ const ProductDetail = () => {
             <h2 className="section-title">Related Products</h2>
             <div className="products-grid">
               {relatedProducts.map((relatedProduct) => (
-                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                <ProductCard key={relatedProduct._id} product={relatedProduct} />
               ))}
             </div>
           </div>

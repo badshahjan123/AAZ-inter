@@ -3,25 +3,42 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useSocket } from '../context/SocketContext';
-import { User, Mail, LogOut, Save, Package, ShoppingCart, ArrowRight, Building, Phone, MapPin, CreditCard } from 'lucide-react';
+import { User, Mail, LogOut, Save, Package, ShoppingCart, ArrowRight, Building, Phone, MapPin, ShieldCheck } from 'lucide-react';
 import Button from '../components/common/Button';
 import { api } from '../config/api';
 import './Profile.css';
+
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, logout, updateProfile, resendVerificationEmail } = useAuth();
+  const { user, logout, updateProfile, resendVerificationEmail, setup2FA, verify2FA, disable2FA } = useAuth();
   const { getCartCount } = useCart();
-  const { socket, isConnected } = useSocket();
+  const { socket } = useSocket();
+  
+  // Active Tab State
+  const [activeTab, setActiveTab] = useState('account');
+  
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
-    email: user?.email || ''
+    email: user?.email || '',
+    phone: user?.phone || '',
+    hospitalName: user?.hospitalName || '',
+    address: user?.address || '',
+    city: user?.city || ''
   });
+
   const [success, setSuccess] = useState('');
   const [verificationMessage, setVerificationMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
   const [recentOrders, setRecentOrders] = useState([]);
+
+  // 2FA States
+  const [isSettingUp2FA, setIsSettingUp2FA] = useState(false);
+  const [qrCode, setQrCode] = useState('');
+  const [secret, setSecret] = useState('');
+  const [otpToken, setOtpToken] = useState('');
+  const [twoFactorLoading, setTwoFactorLoading] = useState(false);
 
   // Fetch order data
   useEffect(() => {
@@ -36,7 +53,7 @@ const Profile = () => {
 
     const handleOrderUpdate = (data) => {
       console.log('📦 Profile: Real-time order update', data);
-      fetchOrders(); // Refresh orders when status changes
+      fetchOrders();
     };
 
     socket.on('orderStatusUpdate', handleOrderUpdate);
@@ -57,10 +74,55 @@ const Profile = () => {
       if (response.ok) {
         const data = await response.json();
         setOrderCount(data.length);
-        setRecentOrders(data.slice(0, 3)); // Get 3 most recent
+        setRecentOrders(data.slice(0, 5));
       }
     } catch (err) {
       console.error('Failed to fetch orders:', err);
+    }
+  };
+
+  const handleSetup2FA = async () => {
+    setTwoFactorLoading(true);
+    const result = await setup2FA();
+    if (result.qrCode) {
+      setQrCode(result.qrCode);
+      setSecret(result.secret);
+      setIsSettingUp2FA(true);
+    }
+    setTwoFactorLoading(false);
+  };
+
+  const handleVerify2FA = async () => {
+    if (otpToken.length !== 6) return;
+    setTwoFactorLoading(true);
+    const result = await verify2FA(otpToken);
+    setTwoFactorLoading(false);
+    if (result.success) {
+      setSuccess('2FA Enabled Successfully!');
+      setIsSettingUp2FA(false);
+      setQrCode('');
+      setSecret('');
+      setOtpToken('');
+    } else {
+      setVerificationMessage('❌ ' + result.message);
+    }
+  };
+
+  const handleToggle2FA = async () => {
+    if (twoFactorLoading) return;
+    
+    if (user.twoFactorEnabled) {
+      setTwoFactorLoading(true);
+      const result = await disable2FA();
+      setTwoFactorLoading(false);
+      if (result.success) setSuccess('2FA Disabled Successfully');
+    } else if (user.hasTwoFactorSecret) {
+      setTwoFactorLoading(true);
+      const result = await verify2FA();
+      setTwoFactorLoading(false);
+      if (result.success) setSuccess('2FA Enabled Successfully');
+    } else {
+      handleSetup2FA();
     }
   };
 
@@ -71,11 +133,15 @@ const Profile = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    updateProfile(formData);
-    setSuccess('Profile updated successfully!');
-    setIsEditing(false);
+    const result = await updateProfile(formData);
+    if (result.success) {
+      setSuccess('Profile updated successfully!');
+      setIsEditing(false);
+    } else {
+      setSuccess('Failed to update profile: ' + result.message);
+    }
     setTimeout(() => setSuccess(''), 3000);
   };
 
@@ -90,83 +156,92 @@ const Profile = () => {
   }
 
   return (
-    <div className="profile-page">
-      <div className="container">
-        <div className="profile-layout">
-          {/* Sidebar Navigation */}
-          <div className="profile-sidebar">
-            <div className="account-nav-card">
-              <div className="account-brief">
-                 <div className="business-avatar">
-                   <Building size={24} />
-                 </div>
-                 <div className="brief-info">
-                   <h3>{user.name}</h3>
-                   <p className="account-type">Business Account</p>
-                   <p className="account-email">{user.email}</p>
-                 </div>
+    <div className="profile-page-modern">
+      <div className="profile-container-modern">
+        <div className="profile-main-card">
+          {/* Profile Header with User Info */}
+          <div className="profile-header-modern">
+            <div className="profile-user-info">
+              <div className="user-avatar-modern">
+                <Building size={32} />
               </div>
-              
-              <nav className="account-menu">
-                <button className="menu-link active">
-                  <User size={18} /> Account Information
-                </button>
-                <button className="menu-link" onClick={() => navigate('/my-orders')}>
-                  <Package size={18} /> Order History
-                </button>
-                <button className="menu-link" onClick={() => navigate('/cart')}>
-                  <ShoppingCart size={18} /> Shopping Cart
-                </button>
-                <button className="menu-link logout" onClick={handleLogout}>
-                  <LogOut size={18} /> Sign Out
-                </button>
-              </nav>
-
-              <div className="account-quick-stats">
-                 <div className="q-stat">
-                   <span className="q-val">{orderCount}</span>
-                   <span className="q-lab">Total Orders</span>
-                 </div>
-                 <div className="q-stat">
-                   <span className="q-val">{getCartCount()}</span>
-                   <span className="q-lab">Cart Items</span>
-                 </div>
+              <div className="user-details-modern">
+                <h1>{user.name}</h1>
+                <p className="user-email">{user.email}</p>
+                <span className="account-badge">Business Account</span>
               </div>
             </div>
-            
-            <div className="support-card-mini">
-               <h4>Customer Support</h4>
-               <p>Need help with medical equipment orders or technical specifications?</p>
-               <Button variant="outline" size="small" fullWidth onClick={() => navigate('/contact')}>Contact Support</Button>
+            <div className="profile-actions">
+              <Button variant="outline" icon={<LogOut size={18} />} onClick={handleLogout}>
+                Sign Out
+              </Button>
             </div>
           </div>
 
-          {/* Profile Main Content */}
-          <div className="profile-main">
-            <div className="profile-section">
-              <div className="section-header-compact">
-                <div className="h-text">
+          {/* Tab Navigation */}
+          <div className="profile-tabs-modern">
+            <button 
+              className={`tab-btn ${activeTab === 'account' ? 'active' : ''}`}
+              onClick={() => setActiveTab('account')}
+            >
+              <User size={18} />
+              <span className="tab-text">Account</span>
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'security' ? 'active' : ''}`}
+              onClick={() => setActiveTab('security')}
+            >
+              <ShieldCheck size={18} />
+              <span className="tab-text">Security</span>
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
+              onClick={() => setActiveTab('orders')}
+            >
+              <Package size={18} />
+              <span className="tab-text">Orders</span>
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'cart' ? 'active' : ''}`}
+              onClick={() => navigate('/cart', { state: { from: 'profile' } })}
+            >
+              <ShoppingCart size={18} />
+              <span className="tab-text">Cart</span>
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          <div className="profile-content-modern">
+          {/* Account Details Tab */}
+          {activeTab === 'account' && (
+            <div className="tab-content">
+              <div className="content-header">
+                <div>
                   <h2>Account Information</h2>
                   <p>Manage your business account details and contact information</p>
                 </div>
                 {!isEditing && (
                   <Button variant="outline" size="small" onClick={() => setIsEditing(true)}>
-                    Edit
+                    Edit Profile
                   </Button>
                 )}
               </div>
 
               {success && (
-                <div className="profile-success">
+                <div className="alert-modern" style={{
+                  background: success.startsWith('Failed') ? '#fee2e2' : '#dcfce7',
+                  color: success.startsWith('Failed') ? '#991b1b' : '#15803d',
+                  borderColor: success.startsWith('Failed') ? '#fecaca' : '#bbf7d0'
+                }}>
                   {success}
                 </div>
               )}
 
-              <form className="profile-form" onSubmit={handleSubmit}>
-                <div className="form-grid">
-                  <div className="form-field">
-                    <label htmlFor="name">Contact Person / Business Name</label>
-                    <div className="input-wrapper">
+              <form className="profile-form-modern" onSubmit={handleSubmit}>
+                <div className="form-grid-modern">
+                  <div className="form-field-modern">
+                    <label htmlFor="name">Contact Person</label>
+                    <div className="input-wrapper-modern">
                       <User size={18} className="field-icon" />
                       <input
                         type="text"
@@ -176,14 +251,30 @@ const Profile = () => {
                         onChange={handleChange}
                         disabled={!isEditing}
                         required
-                        placeholder="Enter full name or business name"
+                        placeholder="Contact person name"
                       />
                     </div>
                   </div>
 
-                  <div className="form-field">
-                    <label htmlFor="email">Business Email Address</label>
-                    <div className="input-wrapper">
+                  <div className="form-field-modern">
+                    <label htmlFor="hospitalName">Hospital / Clinic Name</label>
+                    <div className="input-wrapper-modern">
+                      <Building size={18} className="field-icon" />
+                      <input
+                        type="text"
+                        id="hospitalName"
+                        name="hospitalName"
+                        value={formData.hospitalName}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        placeholder="e.g. City Hospital"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-field-modern">
+                    <label htmlFor="email">Email Address</label>
+                    <div className="input-wrapper-modern">
                       <Mail size={18} className="field-icon" />
                       <input
                         type="email"
@@ -191,16 +282,63 @@ const Profile = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        disabled={!isEditing}
+                        disabled={true}
                         required
-                        placeholder="business@company.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-field-modern">
+                    <label htmlFor="phone">Phone Number</label>
+                    <div className="input-wrapper-modern">
+                      <Phone size={18} className="field-icon" />
+                      <input
+                        type="text"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        placeholder="+92 300 1234567"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-field-modern full-width">
+                    <label htmlFor="address">Default Shipping Address</label>
+                    <div className="input-wrapper-modern">
+                      <MapPin size={18} className="field-icon" />
+                      <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        placeholder="Full street address, building, floor"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-field-modern">
+                    <label htmlFor="city">City</label>
+                    <div className="input-wrapper-modern">
+                      <MapPin size={18} className="field-icon" />
+                      <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        placeholder="e.g. Karachi"
                       />
                     </div>
                   </div>
                 </div>
 
                 {isEditing && (
-                  <div className="form-actions">
+                  <div className="form-actions-modern">
                     <Button type="submit" variant="primary" icon={<Save size={18} />}>
                       Save Changes
                     </Button>
@@ -211,7 +349,11 @@ const Profile = () => {
                         setIsEditing(false);
                         setFormData({
                           name: user.name,
-                          email: user.email
+                          email: user.email,
+                          phone: user.phone || '',
+                          hospitalName: user.hospitalName || '',
+                          address: user.address || '',
+                          city: user.city || ''
                         });
                       }}
                     >
@@ -221,127 +363,191 @@ const Profile = () => {
                 )}
               </form>
             </div>
+          )}
 
-            {/* Email Verification Section */}
-            {!user.isVerified && (
-              <div className="profile-section">
-                <div className="section-header-compact">
-                  <div className="h-text">
-                    <h2>Email Verification</h2>
-                    <p>Verify your email to secure your account and receive important notifications</p>
-                  </div>
-                </div>
-
-                <div className="verification-alert" style={{
-                  background: '#D1ECF1',
-                  border: '1px solid #17A2B8',
-                  borderRadius: '8px',
-                  padding: '20px',
-                  marginBottom: '20px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'start', gap: '12px' }}>
-                    <Mail size={24} style={{ color: '#0C5460', flexShrink: 0, marginTop: '2px' }} />
-                    <div style={{ flex: 1 }}>
-                      <h4 style={{ margin: '0 0 8px 0', color: '#0C5460', fontSize: '16px', fontWeight: '600' }}>
-                        Verify Your Email (Recommended)
-                      </h4>
-                      <p style={{ margin: '0 0 12px 0', color: '#0C5460', fontSize: '14px', lineHeight: '1.5' }}>
-                        Your email address <strong>{user.email}</strong> has not been verified yet. 
-                        While you can still place orders, verifying your email helps secure your account and ensures you receive important order notifications.
-                      </p>
-                      <p style={{ margin: '0 0 16px 0', color: '#0C5460', fontSize: '14px' }}>
-                        Check your inbox for the verification email or click below to resend it.
-                      </p>
-                      <Button 
-                        variant="primary" 
-                        size="small"
-                        loading={isResending}
-                        onClick={async () => {
-                          setIsResending(true);
-                          setVerificationMessage('');
-                          const result = await resendVerificationEmail();
-                          setIsResending(false);
-                          if (result.success) {
-                            setVerificationMessage('✅ Verification email sent! Check your inbox.');
-                          } else {
-                            setVerificationMessage('❌ ' + result.message);
-                          }
-                          setTimeout(() => setVerificationMessage(''), 5000);
-                        }}
-                      >
-                        {isResending ? 'Sending...' : 'Resend Verification Email'}
-                      </Button>
-                      {verificationMessage && (
-                        <p style={{ 
-                          marginTop: '12px', 
-                          padding: '8px 12px', 
-                          background: verificationMessage.startsWith('✅') ? '#D4EDDA' : '#F8D7DA',
-                          color: verificationMessage.startsWith('✅') ? '#155724' : '#721C24',
-                          borderRadius: '4px',
-                          fontSize: '14px'
-                        }}>
-                          {verificationMessage}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+          {/* Security Tab */}
+          {activeTab === 'security' && (
+            <div className="tab-content">
+              <div className="content-header">
+                <div>
+                  <h2>Security Settings</h2>
+                  <p>Manage your account security, email verification, and two-factor authentication</p>
                 </div>
               </div>
-            )}
 
-            {/* Order History Section */}
-            <div className="profile-section">
-              <div className="section-header-compact">
-                <div className="h-text">
+              {success && (
+                <div className="alert-modern success">
+                  {success}
+                </div>
+              )}
+
+              {/* Email Verification Section */}
+              {!user.isVerified && (
+                <div className="security-card-modern">
+                  <div className="security-card-header">
+                    <Mail size={24} />
+                    <div>
+                      <h3>Email Verification</h3>
+                      <p>Verify your email to secure your account</p>
+                    </div>
+                  </div>
+                  <div className="security-card-body">
+                    <p className="verify-text">
+                      Your email address <strong>{user.email}</strong> has not been verified yet. 
+                      Click below to resend the verification email.
+                    </p>
+                    <Button 
+                      variant="primary" 
+                      size="small"
+                      loading={isResending}
+                      onClick={async () => {
+                        setIsResending(true);
+                        setVerificationMessage('');
+                        const result = await resendVerificationEmail();
+                        setIsResending(false);
+                        if (result.success) {
+                          setVerificationMessage('✅ Verification email sent! Check your inbox.');
+                        } else {
+                          setVerificationMessage('❌ ' + result.message);
+                        }
+                        setTimeout(() => setVerificationMessage(''), 5000);
+                      }}
+                    >
+                      {isResending ? 'Sending...' : 'Resend Verification Email'}
+                    </Button>
+                    {verificationMessage && (
+                      <p className={`verify-message ${verificationMessage.startsWith('✅') ? 'success' : 'error'}`}>
+                        {verificationMessage}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 2FA Section */}
+              <div className="security-card-modern">
+                <div className="security-card-header">
+                  <ShieldCheck size={24} />
+                  <div>
+                    <h3>Two-Factor Authentication</h3>
+                    <p>Add an extra layer of security with Google Authenticator</p>
+                  </div>
+                  <div className="tfa-toggle" onClick={handleToggle2FA}>
+                    <div className={`toggle-switch ${user.twoFactorEnabled ? 'active' : ''}`}>
+                      <div className="toggle-knob"></div>
+                    </div>
+                    <span className={`toggle-label ${user.twoFactorEnabled ? 'active' : ''}`}>
+                      {user.twoFactorEnabled ? 'ON' : 'OFF'}
+                    </span>
+                  </div>
+                </div>
+                <div className="security-card-body">
+                  {!user.twoFactorEnabled && isSettingUp2FA && qrCode && (
+                    <div className="tfa-setup">
+                      <h4>Scan QR Code</h4>
+                      <p>Scan this with your authenticator app using  your email <strong>{user.email}</strong></p>
+                      <div className="qr-code-container">
+                        <img src={qrCode} alt="2FA QR Code" />
+                      </div>
+                      <div className="otp-input-container">
+                        <label>Enter 6-Digit Code:</label>
+                        <input 
+                          type="text" 
+                          maxLength="6"
+                          className="otp-input"
+                          placeholder="000000"
+                          value={otpToken}
+                          onChange={(e) => setOtpToken(e.target.value.replace(/\D/g, ''))}
+                        />
+                      </div>
+                      <div className="tfa-actions">
+                        <Button variant="primary" onClick={handleVerify2FA} loading={twoFactorLoading}>
+                          Confirm & Enable
+                        </Button>
+                        <Button variant="outline" onClick={() => { setIsSettingUp2FA(false); setQrCode(''); }}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {user.twoFactorEnabled && (
+                    <p className="tfa-status active">
+                      ✓ Two-factor authentication is currently enabled and protecting your account
+                    </p>
+                  )}
+                  {!user.twoFactorEnabled && !isSettingUp2FA && (
+                    <p className="tfa-status inactive">
+                      Two-factor authentication is currently disabled. Enable it to add an extra layer of security.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Orders Tab */}
+          {activeTab === 'orders' && (
+            <div className="tab-content">
+              <div className="content-header">
+                <div>
                   <h2>Order History</h2>
                   <p>Track your medical equipment purchases and order status</p>
                 </div>
                 {recentOrders.length > 0 && (
                   <Button variant="outline" size="small" onClick={() => navigate('/my-orders')}>
-                    View All Activity
+                    View All Orders
                   </Button>
                 )}
               </div>
-              
+
               {recentOrders.length === 0 ? (
-                <div className="empty-state">
-                  <Package size={48} />
-                  <p>No orders yet</p>
+                <div className="empty-state-modern">
+                  <Package size={64} />
+                  <h3>No orders yet</h3>
+                  <p>Start shopping for medical equipment</p>
                   <Button variant="primary" onClick={() => navigate('/products')}>
-                    Start Shopping
+                    Browse Products
                   </Button>
                 </div>
               ) : (
-                <div className="recent-orders-list">
+                <div className="orders-list-modern">
                   {recentOrders.map((order) => (
-                    <div key={order._id} className="procurement-item" onClick={() => navigate(`/order-details/${order._id}`)}>
-                      <div className="proc-main">
-                        <div className="proc-id">
-                          <span className="ref">REF: {order._id.substring(order._id.length - 8).toUpperCase()}</span>
-                          <span className="date">{new Date(order.createdAt).toLocaleDateString()}</span>
+                    <div key={order._id} className="order-item-modern" onClick={() => navigate(`/order-details/${order._id}`)}>
+                      <div className="order-info">
+                        <div className="order-id">
+                          <span className="label">Order ID:</span>
+                          <span className="value">#{order._id.slice(-8).toUpperCase()}</span>
                         </div>
-                        <div className="proc-status">
-                          <span className={`status-tag ${order.orderStatus.toLowerCase()}`}>
-                            {order.orderStatus}
-                          </span>
+                        <div className="order-date">
+                          {new Date(order.createdAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
                         </div>
-                        <div className="proc-amount">
-                          PKR {order.totalAmount?.toLocaleString()}
-                        </div>
-                        <div className="proc-action">
-                          <Button variant="ghost" size="small"><ArrowRight size={16} /></Button>
-                        </div>
+                      </div>
+                      <div className="order-status">
+                        <span className={`status-badge ${order.orderStatus.toLowerCase()}`}>
+                          {order.orderStatus.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="order- amount">
+                        PKR {order.totalAmount?.toLocaleString()}
+                      </div>
+                      <div className="order-action">
+                        <ArrowRight size={20} />
                       </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default Profile;

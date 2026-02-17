@@ -1,6 +1,8 @@
 const Admin = require('../models/Admin');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 
 // @desc    Auth admin & get token
 // @route   POST /api/auth/admin/login
@@ -43,12 +45,7 @@ const crypto = require('crypto');
 // @access  Public
 const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, securityQuestion, securityAnswer } = req.body;
-
-    if (!securityQuestion || !securityAnswer) {
-      res.status(400);
-      throw new Error('Please provide both a security question and an answer');
-    }
+    const { name, email, password } = req.body;
 
     // Strict Email Format Validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -77,8 +74,6 @@ const registerUser = async (req, res, next) => {
       name,
       email,
       password,
-      securityQuestion,
-      securityAnswer,
       isVerified: false,
       emailVerificationToken: crypto.createHash('sha256').update(verificationToken).digest('hex'),
       emailVerificationExpire: verificationExpire,
@@ -325,6 +320,14 @@ const loginUser = async (req, res, next) => {
     const user = await User.findOne({ email: searchEmail });
 
     if (user && (await user.matchPassword(password))) {
+      // Check if 2FA is enabled
+      if (user.twoFactorEnabled) {
+        return res.json({
+          twoFactorRequired: true,
+          email: user.email,
+          userId: user._id
+        });
+      }
       // NOTE: We allow unverified users to login so they can access their profile
       // and resend verification email. They will be blocked from:
       // - Placing orders (checked in orderController)
@@ -340,6 +343,10 @@ const loginUser = async (req, res, next) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone || '',
+        address: user.address || '',
+        city: user.city || '',
+        hospitalName: user.hospitalName || '',
         isAdmin: user.isAdmin,
         isVerified: user.isVerified,
         token: generateToken(user._id),
@@ -353,88 +360,110 @@ const loginUser = async (req, res, next) => {
   }
 };
 
-// @desc    Get user's security question
-// @route   POST /api/auth/forgot-password/question
+// @desc    Forgot Password - Send reset link to email
+// @route   POST /api/auth/forgot-password
 // @access  Public
-const getSecurityQuestion = async (req, res, next) => {
+const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-    if (!email) {
-      res.status(400);
-      throw new Error('Email is required');
-    }
-
-    const searchEmail = email.toLowerCase().trim();
-    const user = await User.findOne({ email: searchEmail });
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
 
     if (!user) {
-      console.warn(`🔍 Security Question lookup failed. User not found: ${searchEmail}`);
-      res.status(404);
-      throw new Error('Invalid request'); // Generic for security
+      // For security, don't reveal if user exists. 
+      // Always return 200 so hackers can't "probe" emails.
+      return res.status(200).json({
+        success: true,
+        message: 'If your email is registered, you will receive a reset link shortly.'
+      });
     }
 
-    res.status(200).json({
-      question: user.securityQuestion
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Verify security answer
-// @route   POST /api/auth/forgot-password/verify-answer
-// @access  Public
-const verifySecurityAnswer = async (req, res, next) => {
-  try {
-    const { email, answer } = req.body;
-    const searchEmail = email.toLowerCase().trim();
-    const normalizedAnswer = answer.trim().toLowerCase(); // Normalize to match registration
-    const user = await User.findOne({ email: searchEmail });
-
-    if (!user) {
-      console.warn(`🔍 Security answer verification: User not found: ${searchEmail}`);
-      res.status(401);
-      throw new Error('Invalid answer');
-    }
-
-    // Check if user has a security question set
-    if (!user.securityQuestion || !user.securityAnswer) {
-      console.warn(`⚠️ User ${searchEmail} does not have security questions set up`);
-      res.status(400);
-      throw new Error('This account was created before security questions were implemented. Please contact support to reset your password.');
-    }
-
-    const isMatch = await user.matchSecurityAnswer(normalizedAnswer);
-    
-    if (!isMatch) {
-      console.warn(`🔒 Security answer verification failed for: ${searchEmail}`);
-      res.status(401);
-      throw new Error('Invalid answer');
-    }
-
-    // Generate a temporary reset token
+    // Generate Reset Token
     const resetToken = user.getResetPasswordToken();
     await user.save();
 
-    res.status(200).json({
-      message: 'Answer verified',
-      resetToken: resetToken
-    });
+    // Send Email
+    try {
+      const resetUrl = `${process.env.FRONTEND_URL || 'https://aaz-international.vercel.app'}/reset-password/${resetToken}`;
+      
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .header { background: #1976D2; color: white; padding: 40px 20px; text-align: center; }
+    .content { padding: 40px; }
+    .button-container { text-align: center; margin: 35px 0; }
+    .button { display: inline-block; padding: 18px 45px; background-color: #1976D2; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; transition: background 0.3s; }
+    .footer { background: #f9f9f9; padding: 25px; text-align: center; color: #666; font-size: 13px; border-top: 1px solid #eee; }
+    .expiry-note { color: #d32f2f; font-weight: 600; margin-top: 20px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="margin:0;">AAZ International</h2>
+      <p style="margin:10px 0 0 0; opacity:0.9;">Password Recovery System</p>
+    </div>
+    <div class="content">
+      <p>Hello <strong>${user.name}</strong>,</p>
+      <p>We received a request to reset the password for your medical portal account. Please use the button below to choose a new password:</p>
+      
+      <div class="button-container">
+        <a href="${resetUrl}" class="button" style="color:white; text-decoration:none;">Reset My Password</a>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; text-align: center;">Or copy this link to your browser:</p>
+      <div style="background:#f4f4f4; padding:15px; border-radius:6px; font-size:13px; word-break:break-all; text-align:center;">
+        <a href="${resetUrl}" style="color:#1976D2;">${resetUrl}</a>
+      </div>
+      
+      <p class="expiry-note">⏱️ This link is valid for 30 minutes only.</p>
+      
+      <p style="margin-top:30px; font-size:14px; color:#888;">If you did not request this password change, please ignore this email. Your account is still secure.</p>
+    </div>
+    <div class="footer">
+      <p>&copy; ${new Date().getFullYear()} AAZ International Enterprises Pvt. Ltd. All Rights Reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+      `;
+
+      await sendEmail({
+        email: user.email,
+        subject: 'Password Reset Request - AAZ International',
+        html: htmlContent
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Password reset link sent to your email.'
+      });
+    } catch (err) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save();
+      
+      res.status(500);
+      throw new Error('Email could not be sent. Please try again later.');
+    }
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Reset password using security question token
-// @route   POST /api/auth/forgot-password/reset
+// @desc    Reset Password via Token
+// @route   POST /api/auth/reset-password/:token
 // @access  Public
-const resetPasswordWithSecurity = async (req, res, next) => {
+const resetPassword = async (req, res, next) => {
   try {
-    const { resetToken, password } = req.body;
-
     const hashedToken = crypto
       .createHash('sha256')
-      .update(resetToken)
+      .update(req.params.token)
       .digest('hex');
 
     const user = await User.findOne({
@@ -447,10 +476,34 @@ const resetPasswordWithSecurity = async (req, res, next) => {
       throw new Error('Invalid or expired reset token');
     }
 
+    const { password, token: otpToken } = req.body;
+
+    // Check if 2FA is enabled for the user
+    if (user.twoFactorEnabled) {
+      if (!otpToken) {
+        return res.json({
+          twoFactorRequired: true,
+          message: 'Please provide your 2FA verification code'
+        });
+      }
+
+      const verified = speakeasy.totp.verify({
+        secret: user.twoFactorSecret,
+        encoding: 'base32',
+        token: otpToken
+      });
+
+      if (!verified) {
+        res.status(400);
+        throw new Error('Invalid authenticator code');
+      }
+    }
+    
+    // Validate password strength
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
     if (!passwordRegex.test(password)) {
       res.status(400);
-      throw new Error('Password must be at least 6 characters long and include 1 uppercase letter, 1 number, and 1 special character.');
+      throw new Error('Password must be at least 6 characters long and include uppercase, number, and special character.');
     }
 
     user.password = password;
@@ -460,13 +513,54 @@ const resetPasswordWithSecurity = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Password reset successful'
+      message: 'Password reset successful. You can now login with your new password.'
     });
   } catch (error) {
     next(error);
   }
 };
 
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      user.name = req.body.name || user.name;
+      user.phone = req.body.phone || user.phone;
+      user.address = req.body.address || user.address;
+      user.city = req.body.city || user.city;
+      user.hospitalName = req.body.hospitalName || user.hospitalName;
+
+      if (req.body.password) {
+        user.password = req.body.password;
+      }
+
+      const updatedUser = await user.save();
+
+      res.json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        address: updatedUser.address,
+        city: updatedUser.city,
+        hospitalName: updatedUser.hospitalName,
+        isAdmin: updatedUser.isAdmin,
+        isVerified: updatedUser.isVerified,
+        token: generateToken(updatedUser._id),
+      });
+    } else {
+      res.status(404);
+      throw new Error('User not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 
 // @desc    Get current user profile
 // @route   GET /api/auth/me
@@ -479,11 +573,158 @@ const getMe = async (req, res, next) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: !!req.admin
+        phone: user.phone || '',
+        address: user.address || '',
+        city: user.city || '',
+        hospitalName: user.hospitalName || '',
+        isAdmin: !!req.admin,
+        isVerified: user.isVerified,
+        twoFactorEnabled: !!user.twoFactorEnabled,
+        hasTwoFactorSecret: !!user.twoFactorSecret
       });
     } else {
       res.status(404);
       throw new Error('User not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Setup 2FA - Generate QR Code
+// @route   POST /api/auth/2fa/setup
+// @access  Private
+const setup2FA = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+    let secret;
+    if (user.twoFactorSecret) {
+      // Reuse existing secret
+      secret = {
+        base32: user.twoFactorSecret,
+        otpauth_url: speakeasy.otpauthURL({
+          secret: user.twoFactorSecret,
+          label: `AAZ Medical (${user.email})`,
+          encoding: 'base32'
+        })
+      };
+    } else {
+      // Generate new secret
+      secret = speakeasy.generateSecret({
+        name: `AAZ Medical (${user.email})`
+      });
+      user.twoFactorSecret = secret.base32;
+      await user.save();
+    }
+
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    res.json({
+      qrCode: qrCodeUrl,
+      secret: secret.base32,
+      exists: !!user.twoFactorSecret
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify 2FA & Enable
+// @route   POST /api/auth/2fa/verify
+// @access  Private
+const verify2FA = async (req, res, next) => {
+  try {
+    const { token, quickToggle } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+    // Quick toggle ON if the user already has a secret
+    if (quickToggle && user.twoFactorSecret) {
+      user.twoFactorEnabled = true;
+      await user.save();
+      return res.json({ success: true, message: '2FA Enabled' });
+    }
+
+    // Normal verification flow
+    if (!token) {
+      res.status(400);
+      throw new Error('Verification token required');
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token
+    });
+
+    if (verified) {
+      user.twoFactorEnabled = true;
+      await user.save();
+      res.json({ success: true, message: '2FA Enabled Successfully' });
+    } else {
+      res.status(400);
+      throw new Error('Invalid verification code');
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Disable 2FA
+// @route   POST /api/auth/2fa/disable
+// @access  Private
+const disable2FA = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    user.twoFactorEnabled = false;
+    // user.twoFactorSecret = undefined; // KEEP SECRET FOR REUSE
+    await user.save();
+    res.json({ success: true, message: '2FA Disabled' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Login Verify 2FA
+// @route   POST /api/auth/2fa/login-verify
+// @access  Public
+const verify2FALogin = async (req, res, next) => {
+  try {
+    const { userId, token } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token
+    });
+
+    if (verified) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        isVerified: user.isVerified,
+        token: generateToken(user._id),
+      });
+    } else {
+      res.status(400);
+      throw new Error('Invalid authentication code');
     }
   } catch (error) {
     next(error);
@@ -495,10 +736,14 @@ module.exports = {
   registerUser, 
   loginUser, 
   getMe, 
+  updateUserProfile,
   verifyEmail,
   resendVerificationEmail,
-  getSecurityQuestion,
-  verifySecurityAnswer,
-  resetPasswordWithSecurity
+  forgotPassword,
+  resetPassword,
+  setup2FA,
+  verify2FA,
+  disable2FA,
+  verify2FALogin
 };
 

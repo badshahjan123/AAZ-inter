@@ -66,7 +66,7 @@ const createOrder = async (req, res, next) => {
     // 2. GENERATE SEQUENTIAL ORDER NUMBER
     const orderNumber = await generateOrderNumber();
 
-    // 3. CREATE ORDER IN 'CREATED' STATE
+    // 3. CREATE ORDER IN 'pending' STATE
     const order = new Order({
       user: req.user ? req.user._id : undefined,
       orderNumber,
@@ -78,9 +78,10 @@ const createOrder = async (req, res, next) => {
       products: validatedProducts,
       paymentMethod, // "bank" or "cod"
       totalAmount,
-      orderStatus: "CREATED", // Initial status
-      // For bank transfer: will be set to PAYMENT_PENDING after proof upload
-      // For COD: can proceed to SHIPPED
+      orderStatus: "pending", // Initial status - awaiting payment verification
+      paymentStatus: "pending", // Payment awaiting approval
+      // For bank transfer: admin must approve payment
+      // For COD: admin can approve and proceed to processing
     });
 
     const createdOrder = await order.save();
@@ -123,13 +124,22 @@ const getMyOrders = async (req, res, next) => {
   }
 };
 
-// @desc    Get all orders
-// @route   GET /api/orders
+// @desc    Get all orders (with optional status filtering)
+// @route   GET /api/orders?status=pending|approved|rejected
 // @access  Private/Admin
 const getOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({})
-      .populate("products.product", "name price")
+    const { status } = req.query;
+    
+    // Build filter based on query parameter
+    let filter = {};
+    if (status) {
+      // Support both lowercase and uppercase for backward compatibility
+      filter.orderStatus = status;
+    }
+    
+    const orders = await Order.find(filter)
+      .populate("products.product", "name price image")
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
@@ -184,26 +194,25 @@ const updateOrderStatus = async (req, res, next) => {
     );
 
     // 1. STATE MACHINE VALIDATION (Prevent Skipping Steps)
-    // Updated to support new professional status names
+    // Updated to support order workflow statuses and legacy transitions
     const validTransitions = {
-      // New professional statuses
-      PENDING: ["PROCESSING", "CANCELLED"],
-      PROCESSING: ["SHIPPED", "CANCELLED"],
-      SHIPPED: ["DELIVERED", "CANCELLED"],
+      // New lowercase workflow statuses
+      pending: ["processing", "cancelled", "shipped"],
+      processing: ["shipped", "cancelled", "delivered"],
+      shipped: ["delivered", "cancelled"],
+      delivered: [],
+      cancelled: [],
+      
+      // Legacy statuses (backward compatibility)
+      PENDING: ["processing", "PROCESSING", "cancelled", "CANCELLED"],
+      PROCESSING: ["shipped", "SHIPPED", "cancelled", "CANCELLED"],
+      SHIPPED: ["delivered", "DELIVERED", "cancelled", "CANCELLED"],
       DELIVERED: [],
       CANCELLED: [],
-
-      // Legacy status support (backward compatibility)
-      CREATED: [
-        "PAYMENT_PENDING",
-        "PAID",
-        "CONFIRMED",
-        "PROCESSING",
-        "CANCELLED",
-      ],
-      PAYMENT_PENDING: ["PAID", "PROCESSING", "CANCELLED"],
-      PAID: ["CONFIRMED", "PROCESSING", "SHIPPED", "CANCELLED"],
-      CONFIRMED: ["PROCESSING", "SHIPPED", "CANCELLED"],
+      CREATED: ["pending", "processing", "CANCELLED", "cancelled"],
+      PAYMENT_PENDING: ["pending", "processing", "CANCELLED", "cancelled"],
+      PAID: ["pending", "processing", "shipped", "CANCELLED", "cancelled"],
+      CONFIRMED: ["processing", "shipped", "CANCELLED", "cancelled"],
       COMPLETED: [],
     };
 
@@ -285,13 +294,14 @@ const updateOrderStatus = async (req, res, next) => {
 const getDashboardStats = async (req, res, next) => {
   try {
     // 1. Basic Counts
-    const totalOrders = await Order.countDocuments({
-      orderStatus: { $nin: ["CANCELLED", "pending", "Pending"] }, // Exclude cancelled and old-format pendings if needed
+    // Count ONLY pending orders for the orders counter
+    const pendingOrders = await Order.countDocuments({
+      orderStatus: "pending",
     });
 
     // Count ALL orders for general stats, exclude only explicitly cancelled
     const realTotalOrders = await Order.countDocuments({
-      orderStatus: { $ne: "CANCELLED" },
+      orderStatus: { $nin: ["cancelled", "CANCELLED", "rejected", "REJECTED"] },
     });
     const totalProducts = await Product.countDocuments();
     const totalCategories = await Category.countDocuments();
@@ -302,7 +312,8 @@ const getDashboardStats = async (req, res, next) => {
     });
 
     console.log("📊 DASHBOARD SCRAPER:");
-    console.log(`- Orders: ${realTotalOrders}`);
+    console.log(`- Pending Orders: ${pendingOrders}`);
+    console.log(`- Total Orders: ${realTotalOrders}`);
     console.log(`- Products: ${totalProducts}`);
     console.log(`- Categories: ${totalCategories}`);
     console.log(`- Customers: ${totalCustomers}`);
@@ -313,7 +324,7 @@ const getDashboardStats = async (req, res, next) => {
     const revenueStats = await Order.aggregate([
       {
         $match: {
-          orderStatus: { $ne: "CANCELLED" },
+          orderStatus: { $nin: ["cancelled", "CANCELLED", "rejected", "REJECTED"] },
         },
       },
       {
@@ -343,7 +354,7 @@ const getDashboardStats = async (req, res, next) => {
       {
         $match: {
           createdAt: { $gte: sevenDaysAgo },
-          orderStatus: { $nin: ["CANCELLED"] },
+          orderStatus: { $nin: ["cancelled", "CANCELLED", "rejected", "REJECTED"] },
         },
       },
       {
@@ -372,7 +383,8 @@ const getDashboardStats = async (req, res, next) => {
     }
 
     res.json({
-      totalOrders: realTotalOrders,
+      totalOrders: pendingOrders, // ONLY pending orders for the counter
+      realTotalOrders, // All non-cancelled/rejected orders
       totalProducts,
       totalCategories,
       totalCustomers,

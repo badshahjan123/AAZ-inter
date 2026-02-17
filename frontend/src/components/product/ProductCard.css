@@ -8,7 +8,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 320px;
+  min-height: 260px; /* Further reduced */
   overflow: hidden;
   background-color: var(--color-white);
   border-radius: var(--radius-md);
@@ -23,12 +23,12 @@
   border-color: var(--color-primary);
 }
 
-/* Product Image - Compact 1:1 Ratio */
+/* Product Image - Ultra Compact */
 .product-card-image {
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 60%; /* More compact ratio */
+  padding-bottom: 55%; /* Even more compact */
   background-color: #F8FAFB;
   overflow: hidden;
 }
@@ -40,7 +40,8 @@
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* Changed to contain for medical gear */
+  padding: 8px;
   transition: transform 0.3s ease;
 }
 
@@ -48,69 +49,100 @@
   transform: translate(-50%, -50%) scale(1.04);
 }
 
-/* Stock Badge - Extra Small */
+/* Stock Badge */
 .product-badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-size: 9px;
+  top: 4px;
+  right: 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 8px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }
 
+.card-wishlist-btn {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 28px;
+  background: white;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  z-index: 10;
+  color: #64748b;
+}
+
+.card-wishlist-btn:hover {
+  transform: scale(1.1);
+  color: #FF5252;
+}
+
+.card-wishlist-btn.active {
+  background: #FFF5F5;
+}
+
 .product-badge-success {
-  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-  color: var(--color-white);
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #dcfce7;
 }
 
 .product-badge-error {
-  background: linear-gradient(135deg, #F44336 0%, #E57373 100%);
-  color: var(--color-white);
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fee2e2;
 }
 
 /* Product Content - Super Tight */
 .product-card-content {
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
-  min-height: 0;
 }
 
 .product-card-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-gray-900);
-  margin: 0 0 2px 0;
+  margin: 0;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 36px;
+  height: 2.6em;
 }
 
 .product-card-sku {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--color-gray-500);
   margin: 0;
   font-weight: 500;
 }
 
+/* Show description with truncation */
 .product-card-description {
   font-size: 12px;
   color: var(--color-gray-600);
-  line-height: 1.3;
-  margin: 2px 0 0 0;
-  flex: 1;
+  line-height: 1.4;
+  margin: 4px 0 0 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -118,21 +150,18 @@
 /* Product Footer - Ultra Compact */
 .product-card-footer {
   margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid var(--color-gray-100);
+  padding-top: 8px;
+  border-top: 1px solid var(--color-gray-50);
 }
 
 .product-card-price {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .product-price {
-  font-size: 18px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-primary);
 }
 
 /* Product Actions - Super Compact */
@@ -186,6 +215,7 @@
     min-height: auto;
     line-height: 1.2;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     margin-bottom: 2px;
   }
 
@@ -199,6 +229,7 @@
     font-size: 11px;
     line-height: 1.2;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     margin: 2px 0;
   }
 

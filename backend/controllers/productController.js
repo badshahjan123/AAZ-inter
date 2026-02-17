@@ -5,7 +5,7 @@ const Product = require('../models/Product');
 // @access  Public
 const getProducts = async (req, res, next) => {
   try {
-    const { featured, limit, sort, category } = req.query;
+    const { featured, limit, sort, category, search } = req.query;
     let query = { isActive: true };
     
     if (featured === 'true') {
@@ -14,6 +14,13 @@ const getProducts = async (req, res, next) => {
 
     if (category) {
       query.category = category;
+    }
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
     }
     
     let productsQuery = Product.find(query).populate('category', 'name');

@@ -1,6 +1,6 @@
 .legal-page {
   min-height: calc(100vh - 80px);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-color: var(--color-background);
   padding: 40px 20px;
 }
 
@@ -14,11 +14,11 @@
 }
 
 .legal-header {
-  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
   color: white;
   padding: 50px 30px;
   text-align: center;
-  border-bottom: 4px solid #004a8a;
+  border-bottom: 4px solid var(--color-primary-dark);
 }
 
 .legal-header.warning {

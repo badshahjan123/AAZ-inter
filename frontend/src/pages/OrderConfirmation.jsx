@@ -163,162 +163,79 @@ const OrderConfirmation = () => {
         <div className="confirmation-grid">
           {/* LEFT COLUMN: ACTIONS */}
           <div className="confirmation-main">
-            {/* SUCCESS BANNER */}
-            <Card className="success-banner" padding="large">
-              <div className="success-icon-wrapper">
-                <CheckCircle size={56} className="text-success" />
+            {/* UNIFIED SUCCESS & ACTION CARD */}
+            <div className="unified-card">
+              <div className="success-header-compact">
+                <div className="success-icon-wrapper-mini">
+                  <CheckCircle size={32} strokeWidth={3} />
+                </div>
+                <div className="header-text">
+                  <h1>Order Successfully Placed</h1>
+                  <p className="order-id-text">Order ID: {orderData.orderNumber || `#${orderData.orderId.slice(-8)}`}</p>
+                </div>
               </div>
-              <h1>🎉 Order Successfully Placed!</h1>
-              <p className="order-id">
-                Order ID: {orderData.orderNumber || `#${orderData.orderId.slice(-8)}`}
-              </p>
-              <div className="success-message">
-                <p className="success-text">
-                  Thank you for your order! We've received your request and will begin processing it shortly.
-                </p>
+
+              <div className="status-divider"></div>
+
+              <div className="action-content">
+                {/* DYNAMIC CONTENT BASED ON PAYMENT METHOD */}
+                
+                {/* 1. BANK TRANSFER PENDING */}
                 {orderData.paymentMethod === 'bank' && orderData.orderStatus === 'PAYMENT_PENDING' && (
-                  <p className="payment-reminder" style={{ borderLeftColor: '#3b82f6', color: '#1e40af' }}>
-                    <strong>⏳ Payment Proof Received:</strong> Your payment verification is in progress. We will notify you once approved.
-                  </p>
+                  <div className="status-message-box info">
+                    <Clock size={20} />
+                    <div>
+                      <h3>Payment Verification in Progress</h3>
+                      <p>We have received your proof. Your order will be processed automatically once verified.</p>
+                    </div>
+                  </div>
                 )}
+
+                {/* 2. CASH ON DELIVERY */}
                 {orderData.paymentMethod === 'cod' && (
-                  <p className="cod-message">
-                    <strong>✓ Cash on Delivery:</strong> Your order will be delivered to your address. Please keep the exact amount ready.
-                  </p>
+                  <div className="status-message-box success">
+                    <Package size={20} />
+                    <div>
+                      <h3>Order Confirmed</h3>
+                      <p>We will contact you at <strong>{orderData.customer.phone}</strong> shortly. Please have exact cash ready.</p>
+                    </div>
+                  </div>
                 )}
+
+                {/* 3. CARD PAYMENT PENDING */}
                 {orderData.paymentMethod === 'card' && !['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(orderData.orderStatus) && (
-                  <p className="card-reminder">
-                    <strong>💳 Card Payment:</strong> Please complete your payment below to process your order.
-                  </p>
-                )}
-              </div>
-              <div className="tracking-info">
-                <div className="tracking-box">
-                  <Package size={24} className="tracking-icon" />
-                  <div>
-                    <h3>Track Your Order</h3>
-                    <p>You can track your order status anytime from the "My Orders" page.</p>
-                  </div>
-                </div>
-                <Button 
-                  variant="primary" 
-                  onClick={() => navigate('/my-orders')}
-                  style={{ marginTop: '1rem' }}
-                >
-                  View My Orders
-                </Button>
-              </div>
-            </Card>
-
-            {/* STRIPE CARD PAYMENT SECTION */}
-            {orderData.paymentMethod === "card" && (
-              <Card
-                className="payment-action-card highlight-card"
-                padding="large"
-              >
-                <div className="card-header">
-                  <div
-                    className={`status-badge ${["PAID", "PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED"].includes(orderData?.orderStatus) ? "success" : "warning"}`}
-                  >
-                    {["PAID", "PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED"].includes(orderData?.orderStatus)
-                      ? "Payment Verified"
-                      : "Action Required"}
-                  </div>
-                  <h2>
-                    {["PAID", "PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED"].includes(orderData?.orderStatus)
-                      ? "Payment Completed"
-                      : "Pay via Credit/Debit Card"}
-                  </h2>
-                </div>
-
-                {["PAID", "PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED"].includes(orderData?.orderStatus) ? (
-                  <div className="upload-success-msg">
-                    <CheckCircle size={48} className="text-success" />
-                    <h3>Payment Successful!</h3>
-                    <p>
-                      Thank you for your payment. Your order is now being
-                      processed.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="stripe-container">
-                    <p style={{ marginBottom: "1.5rem", color: "#4b5563" }}>
-                      Please enter your card details below to complete your
-                      order.
-                    </p>
+                   <div className="stripe-container-compact">
+                    <h3>Complete Your Payment</h3>
                     <StripePayment
                       order={orderData}
-                      onPaymentSuccess={() => {
-                        // Fetch latest order status after payment
-                        fetchOrderStatus(orderData.orderId);
-                      }}
+                      onPaymentSuccess={() => fetchOrderStatus(orderData.orderId)}
                     />
+                   </div>
+                )}
+
+                {/* 4. GENERIC SUCCESS (PAID/VERIFIED) */}
+                {['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(orderData.orderStatus) && (
+                  <div className="status-message-box success">
+                    <CheckCircle size={20} />
+                    <div>
+                      <h3>Payment Verified</h3>
+                      <p>Your order is confirmed and is being processed for shipping.</p>
+                    </div>
                   </div>
                 )}
-              </Card>
-            )}
 
-            {/* BANK TRANSFER CONFIRMATION SECTION */}
-            {orderData.paymentMethod === "bank" && (
-              <Card
-                className="payment-action-card highlight-card"
-                padding="large"
-              >
-                <div className="card-header">
-                  <div className="status-badge info">Verification Pending</div>
-                  <h2>Payment Proof Submitted</h2>
+                <div className="action-buttons-row">
+                  <button className="track-btn-primary" onClick={() => navigate('/my-orders')}>
+                    Track My Order
+                  </button>
                 </div>
-                <div className="bank-payment-section">
-                  <div className="upload-success-msg">
-                    <Clock size={48} className="text-primary" style={{ color: '#3b82f6' }} />
-                    <h3 style={{ color: '#1e40af' }}>Pending Verification</h3>
-                    <p>
-                      We have received your payment proof and transaction details. 
-                      Our team will verify the payment shortly.
-                    </p>
-                    <p style={{ marginTop: '1rem', fontSize: '14px', color: '#6b7280' }}>
-                      Once verified, your order status will be updated automatically.
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            )}
-
-            {/* CASH ON DELIVERY SECTION */}
-            {orderData.paymentMethod === "cod" && (
-              <Card className="cod-info-card highlight-card" padding="large">
-                <div className="card-header">
-                  <div className="status-badge info">Cash on Delivery</div>
-                  <h2>What's Next?</h2>
-                </div>
-                <div className="steps-list">
-                  <div className="step-line">
-                    <div className="dot">1</div>
-                    <p>
-                      Our team will call you at{" "}
-                      <strong>{orderData.customer.phone}</strong> to confirm the
-                      order.
-                    </p>
-                  </div>
-                  <div className="step-line">
-                    <div className="dot">2</div>
-                    <p>
-                      Once confirmed, we will ship your medical supplies
-                      immediately.
-                    </p>
-                  </div>
-                  <div className="step-line">
-                    <div className="dot">3</div>
-                    <p>Pay cash when your order reaches your doorstep.</p>
-                  </div>
-                </div>
-              </Card>
-            )}
+              </div>
+            </div>
           </div>
 
           {/* RIGHT COLUMN: SUMMARY */}
           <div className="confirmation-sidebar">
-            <Card className="order-summary-mini" padding="large">
+            <div className="order-summary-mini">
               <h3>Order Summary</h3>
               <div className="summary-list">
                 {orderData.items.map((item, index) => (
@@ -341,30 +258,28 @@ const OrderConfirmation = () => {
 
               <div className="delivery-info-mini">
                 <h4>
-                  <Package size={16} /> Delivery To:
+                  <Package size={14} /> Delivery To:
                 </h4>
                 <p>{orderData.customer.name}</p>
                 <p>
                   {orderData.customer.address}, {orderData.customer.city}
                 </p>
               </div>
-            </Card>
+            </div>
 
             <div className="nav-buttons">
-              <Button
-                variant="ghost"
-                fullWidth
+              <button
+                type="button"
                 onClick={() => navigate("/products")}
               >
                 Continue Shopping
-              </Button>
-              <Button
-                variant="ghost"
-                fullWidth
+              </button>
+              <button
+                type="button"
                 onClick={() => navigate("/my-orders")}
               >
                 Track All Orders
-              </Button>
+              </button>
             </div>
           </div>
         </div>

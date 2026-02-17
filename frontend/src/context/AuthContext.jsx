@@ -53,7 +53,11 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
+      
       if (response.ok) {
+        if (data.twoFactorRequired) {
+          return { success: true, twoFactorRequired: true, userId: data.userId };
+        }
         localStorage.setItem('user', JSON.stringify(data));
         setUser(data);
         return { success: true };
@@ -63,6 +67,93 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: 'Server error. Please try again later.' };
     }
   }, []);
+
+  const setup2FA = useCallback(async () => {
+    try {
+      if (!user) return { success: false, message: 'Not authenticated' };
+      const response = await fetch(api('/api/auth/2fa/setup'), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      return await response.json();
+    } catch (error) {
+      return { success: false, message: 'Failed to setup 2FA' };
+    }
+  }, [user]);
+
+  const verify2FA = useCallback(async (token = null) => {
+    try {
+      if (!user) return { success: false, message: 'Not authenticated' };
+      const isQuickToggle = token === null;
+      const response = await fetch(api('/api/auth/2fa/verify'), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          token, 
+          quickToggle: isQuickToggle 
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        const updatedUser = { ...user, twoFactorEnabled: true, hasTwoFactorSecret: true };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return { success: true };
+      }
+      return { success: false, message: data.message || 'Verification failed' };
+    } catch (error) {
+      return { success: false, message: 'Verification failed' };
+    }
+  }, [user]);
+
+  const disable2FA = useCallback(async () => {
+    try {
+      if (!user) return { success: false, message: 'Not authenticated' };
+      const response = await fetch(api('/api/auth/2fa/disable'), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        const updatedUser = { ...user, twoFactorEnabled: false };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return { success: true };
+      }
+      return { success: false, message: data.message || 'Failed to disable 2FA' };
+    } catch (error) {
+      return { success: false, message: 'Failed to disable 2FA' };
+    }
+  }, [user]);
+
+  const verify2FALogin = useCallback(async (userId, token) => {
+    try {
+      const response = await fetch(api('/api/auth/2fa/login-verify'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, token })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('user', JSON.stringify(data));
+        setUser(data);
+        return { success: true };
+      }
+      return { success: false, message: data.message || '2FA verification failed' };
+    } catch (error) {
+      return { success: false, message: 'Server error' };
+    }
+  }, []);
+
 
   const signup = useCallback(async (userData) => {
     try {
@@ -99,49 +190,35 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const fetchSecurityQuestion = useCallback(async (email) => {
+  const forgotPassword = useCallback(async (email) => {
     try {
-      const response = await fetch(api('/api/auth/forgot-password/question'), {
+      const response = await fetch(api('/api/auth/forgot-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
       const data = await response.json();
       if (response.ok) {
-        return { success: true, question: data.question };
+        return { success: true, message: data.message };
       }
-      return { success: false, message: data.message || 'Error fetching question' };
+      return { success: false, message: data.message || 'Error processing request' };
     } catch (error) {
       return { success: false, message: 'Server error' };
     }
   }, []);
 
-  const verifyAnswer = useCallback(async (email, answer) => {
+  const resetPassword = useCallback(async (token, password, otpToken = null) => {
     try {
-      const response = await fetch(api('/api/auth/forgot-password/verify-answer'), {
+      const response = await fetch(api(`/api/auth/reset-password/${token}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, answer }),
+        body: JSON.stringify({ password, token: otpToken }),
       });
       const data = await response.json();
       if (response.ok) {
-        return { success: true, resetToken: data.resetToken };
-      }
-      return { success: false, message: data.message || 'Incorrect answer' };
-    } catch (error) {
-      return { success: false, message: 'Server error' };
-    }
-  }, []);
-
-  const resetPasswordSec = useCallback(async (resetToken, password) => {
-    try {
-      const response = await fetch(api('/api/auth/forgot-password/reset'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resetToken, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
+        if (data.twoFactorRequired) {
+          return { success: true, twoFactorRequired: true };
+        }
         return { success: true };
       }
       return { success: false, message: data.message || 'Reset failed' };
@@ -159,10 +236,32 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const updateProfile = useCallback((updates) => {
-    const updatedUser = { ...user, ...updates };
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+  const updateProfile = useCallback(async (updates) => {
+    try {
+      if (!user || !user.token) return { success: false, message: 'Not authenticated' };
+
+      const response = await fetch(api('/api/auth/profile'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(updates),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const updatedUser = { ...user, ...data };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return { success: true };
+      }
+      return { success: false, message: data.message || 'Update failed' };
+    } catch (error) {
+      console.error('Profile update error:', error);
+      return { success: false, message: 'Server connection error' };
+    }
   }, [user]);
 
   const resendVerificationEmail = useCallback(async () => {
@@ -191,7 +290,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-
   useInactivityLogout(logout, 10 * 60 * 1000, !!user);
 
   const value = useMemo(() => ({
@@ -200,14 +298,17 @@ export const AuthProvider = ({ children }) => {
     login,
     signup,
     verifyEmailByToken,
-    fetchSecurityQuestion,
-    verifyAnswer,
-    resetPasswordSec,
+    forgotPassword,
+    resetPassword,
+    setup2FA,
+    verify2FA,
+    disable2FA,
+    verify2FALogin,
     logout,
     updateProfile,
     resendVerificationEmail,
     isAuthenticated: !!user
-  }), [user, loading, login, signup, verifyEmailByToken, fetchSecurityQuestion, verifyAnswer, resetPasswordSec, logout, updateProfile, resendVerificationEmail]);
+  }), [user, loading, login, signup, verifyEmailByToken, forgotPassword, resetPassword, setup2FA, verify2FA, disable2FA, verify2FALogin, logout, updateProfile, resendVerificationEmail]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

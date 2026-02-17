@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("express"); // Triggering restart for 2FA routes
 const dotenv = require("dotenv");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -51,6 +51,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 
 const reviewRoutes = require("./routes/reviewRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const contactRoutes = require("./routes/contactRoutes");
 
 // Connect to database
 connectDB();
@@ -168,6 +169,7 @@ app.use("/api/", apiLimiter);
 // API ROUTES
 // ============================================
 app.use("/api/auth", authRoutes);
+console.log('✅ Auth Routes loaded:', authRoutes.stack.map(r => r.route?.path).filter(Boolean));
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
@@ -176,6 +178,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Debug Routes
 const debugRoutes = require("./routes/debugRoutes");
@@ -191,6 +194,12 @@ app.use(
     // Prevent execution of uploaded files
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Content-Disposition", "inline");
+    
+    // Add CORS headers for images
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    
     next();
   },
   express.static(path.join(__dirname, "/uploads")),
@@ -246,7 +255,13 @@ if (require.main === module) {
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.endsWith(".vercel.app") || origin.endsWith(".netlify.app")) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },

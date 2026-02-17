@@ -28,13 +28,9 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false
     },
-    securityQuestion: {
-      type: String,
-      required: [true, 'Please provide a security question']
-    },
-    securityAnswer: {
-      type: String,
-      required: [true, 'Please provide a security answer']
+    isVerified: {
+      type: Boolean,
+      default: false
     },
     emailVerificationToken: {
       type: String
@@ -47,6 +43,29 @@ const userSchema = mongoose.Schema(
     },
     resetPasswordExpire: {
       type: Date
+    },
+    phone: {
+      type: String,
+      default: ''
+    },
+    address: {
+      type: String,
+      default: ''
+    },
+    city: {
+      type: String,
+      default: ''
+    },
+    hospitalName: {
+      type: String,
+      default: ''
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false
+    },
+    twoFactorSecret: {
+      type: String
     },
     accountStatus: {
       type: String,
@@ -62,16 +81,6 @@ const userSchema = mongoose.Schema(
 // Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
-};
-
-// Match user entered security answer to hashed answer in database
-userSchema.methods.matchSecurityAnswer = async function (enteredAnswer) {
-  // Safety check: if user doesn't have a security answer (old accounts), return false
-  if (!this.securityAnswer) {
-    console.warn(`⚠️ User ${this.email} does not have a security answer set`);
-    return false;
-  }
-  return await bcrypt.compare(enteredAnswer, this.securityAnswer);
 };
 
 // Generate and hash password reset token
@@ -91,20 +100,15 @@ userSchema.methods.getResetPasswordToken = function() {
   return resetToken; // Return unhashed token to send
 };
 
-// Encrypt password and security answer using bcrypt
+// Encrypt password using bcrypt
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password') && !this.isModified('securityAnswer')) {
+  if (!this.isModified('password')) {
     next();
   }
 
   if (this.isModified('password')) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-  }
-
-  if (this.isModified('securityAnswer')) {
-    const salt = await bcrypt.genSalt(10);
-    this.securityAnswer = await bcrypt.hash(this.securityAnswer, salt);
   }
 });
 

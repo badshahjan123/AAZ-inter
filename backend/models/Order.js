@@ -61,30 +61,54 @@ const orderSchema = new mongoose.Schema(
       enum: ["bank", "cod"], // ONLY: Bank Transfer & Cash on Delivery
       default: "cod",
     },
+    // ============================================
+    // ORDER STATUS (Primary workflow status)
+    // ============================================
     orderStatus: {
       type: String,
       required: true,
       enum: [
-        // New professional statuses
+        "pending",      // Initial state - awaiting payment verification
+        "processing",   // Being prepared for shipment
+        "shipped",      // Out for delivery
+        "delivered",    // Successfully delivered
+        "cancelled",    // Cancelled by admin or customer
+        // Legacy statuses (backward compatibility)
         "PENDING",
         "PROCESSING",
         "SHIPPED",
         "DELIVERED",
         "CANCELLED",
-        // Legacy statuses (backward compatibility)
         "CREATED",
         "PAYMENT_PENDING",
         "PAID",
         "CONFIRMED",
         "COMPLETED",
       ],
-      default: "CREATED",
+      default: "pending",
     },
 
+    // ============================================
+    // PAYMENT STATUS (Separate payment tracking)
+    // ============================================
     paymentStatus: {
       type: String,
-      enum: ["PENDING", "PAID", "FAILED", "REFUNDED"],
-      default: "PENDING",
+      enum: [
+        "pending",      // Awaiting payment verification
+        "approved",     // Payment verified and approved
+        "rejected",     // Payment rejected
+        "paid",         // Legacy: payment completed
+        "failed",       // Payment failed
+        "refunded",     // Payment refunded
+        // Legacy uppercase versions
+        "PENDING",
+        "APPROVED",
+        "REJECTED", 
+        "PAID",
+        "FAILED",
+        "REFUNDED"
+      ],
+      default: "pending",
     },
 
     // ============================================

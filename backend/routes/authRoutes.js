@@ -5,11 +5,15 @@ const {
   loginUser, 
   registerUser, 
   getMe, 
+  updateUserProfile,
   verifyEmail,
   resendVerificationEmail,
-  getSecurityQuestion,
-  verifySecurityAnswer,
-  resetPasswordWithSecurity
+  forgotPassword,
+  resetPassword,
+  setup2FA,
+  verify2FA,
+  disable2FA,
+  verify2FALogin
 } = require('../controllers/authController');
 const { protect, protectAllowUnverified } = require('../middleware/authMiddleware');
 const { authLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
@@ -21,6 +25,9 @@ const { validateRegistration, validateLogin } = require('../middleware/validatio
 
 // Get current user (protected, allows unverified users to access profile)
 router.get('/me', protectAllowUnverified, getMe);
+
+// Update profile
+router.put('/profile', protectAllowUnverified, updateUserProfile);
 
 // Admin login (rate limited + validated)
 router.post('/admin/login', 
@@ -56,22 +63,23 @@ router.post('/resend-verification',
   resendVerificationEmail
 );
 
-// Forgot password - Step 1: Get Question
-router.post('/forgot-password/question', 
+// Forgot password - Step 1: Request reset link
+router.post('/forgot-password', 
   passwordResetLimiter,
-  getSecurityQuestion
+  forgotPassword
 );
 
-// Forgot password - Step 2: Verify Answer
-router.post('/forgot-password/verify-answer', 
+// Forgot password - Step 2: Reset using token
+router.post('/reset-password/:token', 
   passwordResetLimiter,
-  verifySecurityAnswer
+  resetPassword
 );
 
-// Forgot password - Step 3: Reset
-router.post('/forgot-password/reset', 
-  passwordResetLimiter,
-  resetPasswordWithSecurity
-);
+
+// 2FA Routes
+router.post('/2fa/setup', protect, setup2FA);
+router.post('/2fa/verify', protect, verify2FA);
+router.post('/2fa/disable', protect, disable2FA);
+router.post('/2fa/login-verify', authLimiter, verify2FALogin);
 
 module.exports = router;

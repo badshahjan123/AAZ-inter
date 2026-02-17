@@ -15,54 +15,48 @@ const validateRegistration = (req, res, next) => {
 
     // Validate name
     if (!name || typeof name !== 'string') {
-      errors.push('Name is required');
-    } else if (name.trim().length < 2 || name.trim().length > 100) {
-      errors.push('Name must be between 2 and 100 characters');
+      errors.push('Full Name is required');
     } else {
-      // Allow letters, spaces, dots (for Dr.), hyphens, apostrophes and slashes (for Dept/Org)
-      const nameRegex = /^[a-zA-Z0-9\s.'\-\/]{2,100}$/;
-      if (!nameRegex.test(name.trim())) {
-        errors.push('Name contains invalid characters');
+      const trimmedName = name.trim();
+      // Only allow letters, spaces, and dots/hyphens (Professional medical names)
+      // Must start with a letter and be 2-60 characters
+      const nameRegex = /^[a-zA-Z][a-zA-Z\s.\-']{1,59}$/;
+      
+      if (trimmedName.length < 3) {
+        errors.push('Name is too short (min 3 characters)');
+      } else if (!nameRegex.test(trimmedName)) {
+        errors.push('Name must start with a letter and contain only letters, spaces, dots, or hyphens');
+      } else if (/^[.\-\s]+$/.test(trimmedName)) {
+        errors.push('Name cannot consist only of special characters');
       }
     }
 
     // Validate email
     if (!email || typeof email !== 'string') {
-      errors.push('Email is required');
+      errors.push('Valid work email is required');
     } else if (!validator.isEmail(email)) {
-      errors.push('Invalid email format');
-    } else if (email.length > 100) {
-      errors.push('Email too long');
+      errors.push('Please enter a professional email format');
+    } else if (email.length > 80) {
+      errors.push('Email is too long');
     }
 
     // Validate password
     if (!password || typeof password !== 'string') {
-      errors.push('Password is required');
+      errors.push('Security password is required');
     } else {
-      if (password.length < 6) {
-        errors.push('Password must be at least 6 characters');
+      // Modern Strict Requirements: Min 8 chars
+      if (password.length < 8) {
+        errors.push('Security password must be at least 8 characters long');
       }
-      // Password complexity check
+      
       const hasUpper = /[A-Z]/.test(password);
       const hasLower = /[a-z]/.test(password);
       const hasNumber = /[0-9]/.test(password);
       const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
       
       if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
-        errors.push('Password must contain upper, lower, number, and special character');
+        errors.push('Password must include Uppercase, Lowercase, Number and Special Character');
       }
-    }
-
-    // Validate security question
-    const { securityQuestion, securityAnswer } = req.body;
-    if (!securityQuestion || typeof securityQuestion !== 'string') {
-      errors.push('Security question is required');
-    }
-
-    if (!securityAnswer || typeof securityAnswer !== 'string') {
-      errors.push('Security answer is required');
-    } else if (securityAnswer.trim().length < 2) {
-      errors.push('Security answer is too short');
     }
 
     if (errors.length > 0) {
@@ -77,16 +71,12 @@ const validateRegistration = (req, res, next) => {
     // Sanitize inputs
     req.body.name = validator.escape(name.trim());
     req.body.email = validator.normalizeEmail(email.toLowerCase().trim());
-    req.body.securityQuestion = validator.escape(securityQuestion.trim());
-    req.body.securityAnswer = securityAnswer.trim().toLowerCase(); // Normalize for easier answer entry
     
     // Only allow these specific fields (prevent mass assignment)
     req.body = {
       name: req.body.name,
       email: req.body.email,
-      password: req.body.password,
-      securityQuestion: req.body.securityQuestion,
-      securityAnswer: req.body.securityAnswer
+      password: req.body.password
     };
 
     next();

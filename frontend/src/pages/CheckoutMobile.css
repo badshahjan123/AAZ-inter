@@ -1,0 +1,323 @@
+/* ========================================
+   MOBILE RESPONSIVE STYLES FOR CHECKOUT
+   ======================================== */
+
+@media (max-width: 768px) {
+  .checkout-page {
+    padding: 12px 0;
+  }
+
+  /* Header adjustments */
+  .checkout-header-modern {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .checkout-title-modern {
+    font-size: 20px;
+  }
+
+  /* Progress bar - hide on mobile for cleaner look */
+  .checkout-progress-track {
+    display: none;
+  }
+
+  /* Main layout - stack vertically */
+  .checkout-frame-modern {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  /* Form sections */
+  .form-section-modern {
+    padding: 16px;
+  }
+
+  .section-header-modern {
+    font-size: 14px;
+    padding-bottom: 10px;
+  }
+
+  /* Input groups - keep dual columns, stack triple */
+  .input-row-dual {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px;
+  }
+
+  .input-row-triple {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .form-input-modern,
+  .form-select-modern {
+    font-size: 14px;
+    height: 44px;
+  }
+
+  .input-label-modern {
+    font-size: 11px;
+  }
+
+  /* Payment options - keep 2 columns on mobile */
+  .payment-method-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px;
+  }
+
+  .payment-option-card {
+    padding: 16px 12px;
+    min-height: 140px;
+  }
+
+  .payment-option-card h4 {
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .payment-option-card p {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .payment-option-card svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Bank transfer details - Mobile optimized */
+  .bank-transfer-section {
+    margin-top: 16px;
+  }
+
+  .bank-info-box {
+    padding: 16px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+
+  .bank-info-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #0f172a;
+  }
+
+  /* Bank details grid - stack vertically on mobile */
+  .bank-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bank-detail-value {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .bank-detail-value span {
+    flex: 1;
+    word-break: break-all;
+  }
+
+  .bank-detail-value.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .copy-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 4px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  /* Transaction confirmation inputs */
+  .payment-proof-modern {
+    margin-top: 16px;
+  }
+
+  .proof-title {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  /* Proof grid - stack on mobile */
+  .proof-grid,
+  .proof-grid-three {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  .payment-proof-modern .input-group input {
+    height: 44px;
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .payment-proof-modern .input-group label {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  /* File upload */
+  .upload-btn-placeholder label {
+    height: 44px;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .file-name-display {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  /* Order summary sidebar - Show on payment step but full width */
+  .order-summary-sidebar {
+    position: static;
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  .summary-card-modern {
+    padding: 16px;
+  }
+
+  .summary-header-modern {
+    font-size: 16px;
+  }
+
+  /* Product items in summary */
+  .summary-product-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 0;
+  }
+
+  .summary-product-img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .summary-product-info {
+    flex: 1;
+  }
+
+  .summary-product-title {
+    font-size: 13px;
+  }
+
+  .summary-product-price {
+    font-size: 13px;
+  }
+
+  /* Summary totals */
+  .summary-row {
+    font-size: 13px;
+  }
+
+  .summary-total-row {
+    font-size: 15px;
+  }
+
+  /* Buttons */
+  .primary-step-btn,
+  .secondary-step-btn {
+    height: 48px;
+    font-size: 14px;
+    padding: 0 16px;
+  }
+
+  .confirm-order-btn {
+    height: 52px;
+    font-size: 13px;
+    border-radius: 12px;
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+    padding: 0 20px;
+  }
+
+  /* Action buttons container */
+  .action-buttons-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .action-buttons-row .secondary-step-btn {
+    order: 2;
+  }
+
+  .action-buttons-row .primary-step-btn,
+  .action-buttons-row .confirm-order-btn {
+    order: 1;
+  }
+
+  /* Back button */
+  .back-to-cart-btn {
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+
+  /* Tab navigation */
+  .tab-header-ultra {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .tab-btn-modern {
+    font-size: 12px;
+    padding: 10px 14px;
+    gap: 6px;
+  }
+
+  .tab-btn-modern svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Security badges */
+  .security-badge {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-title-modern {
+    font-size: 18px;
+  }
+
+  .form-section-modern {
+    padding: 12px;
+  }
+
+  .form-input-modern,
+  .form-select-modern {
+    height: 42px;
+    font-size: 13px;
+  }
+
+  .primary-step-btn,
+  .confirm-order-btn {
+    height: 46px;
+    font-size: 13px;
+  }
+
+  .summary-card-modern {
+    padding: 12px;
+  }
+
+  .tab-btn-modern {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+}

@@ -32,7 +32,10 @@ const OrderDetails = () => {
 
   useEffect(() => {
     fetchOrderDetails();
-    // WhatsApp confirmation is handled via direct link if needed for COD
+    
+    // Fallback polling every 60 seconds in case socket fails
+    const interval = setInterval(fetchOrderDetails, 60000);
+    return () => clearInterval(interval);
   }, [orderId]);
 
   // Real-time update listener
@@ -122,6 +125,7 @@ const OrderDetails = () => {
   };
 
   const formatStatus = (status) => {
+    const s = status?.toUpperCase() || 'PENDING';
     const statusMap = {
       // New professional statuses
       PENDING: "Pending",
@@ -136,7 +140,7 @@ const OrderDetails = () => {
       CONFIRMED: "Processing",
       COMPLETED: "Delivered",
     };
-    return statusMap[status] || status;
+    return statusMap[s] || s;
   };
 
   if (loading) {
@@ -157,9 +161,12 @@ const OrderDetails = () => {
     const status = (order.paymentStatus || "PENDING").toUpperCase();
     switch (status) {
       case "PAID":
+      case "APPROVED":
         return <CheckCircle className="status-icon status-success" size={20} />;
       case "PAYMENT_PENDING":
+      case "PENDING":
         return <Clock className="status-icon status-warning" size={20} />;
+      case "REJECTED":
       case "FAILED":
         return <XCircle className="status-icon status-error" size={20} />;
       default:
@@ -171,9 +178,12 @@ const OrderDetails = () => {
     const status = (order.paymentStatus || "PENDING").toUpperCase();
     switch (status) {
       case "PAID":
+      case "APPROVED":
         return "Payment Verified ✓";
       case "PAYMENT_PENDING":
+      case "PENDING":
         return "Waiting for Verification";
+      case "REJECTED":
       case "FAILED":
         return "Payment Rejected";
       default:
@@ -185,7 +195,7 @@ const OrderDetails = () => {
 
   return (
     <div className="order-details-page">
-      <div className="container">
+      <div className="order-details-container">
         <div className="page-header">
           <Button
             variant="ghost"
@@ -197,8 +207,9 @@ const OrderDetails = () => {
           <h1 className="page-title">Order Details</h1>
         </div>
 
-        {/* ORDER PROGRESS STEPPER - Uses order.orderStatus as single source of truth */}
+        {/* ORDER PROGRESS STEPPER - Optimized for separate Payment and Order status tracking */}
         <div className="order-stepper">
+          {/* 1. Ordered */}
           <div className="step-item completed">
             <div className="step-circle">
               <CheckCircle size={20} />
@@ -206,24 +217,42 @@ const OrderDetails = () => {
             <span>Ordered</span>
           </div>
 
+          {/* 2. Payment */}
           <div
-            className={`step-item ${["PAID", "PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED"].includes(order.orderStatus) ? "completed" : order.orderStatus === "PAYMENT_PENDING" ? "active" : ""}`}
+            className={`step-item ${
+              order.paymentMethod === 'cod' || 
+              ['approved', 'paid', 'APPROVED', 'PAID'].includes(order.paymentStatus) || 
+              ['processing', 'shipped', 'delivered', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.orderStatus)
+                ? "completed" 
+                : (!order.paymentStatus || order.paymentStatus?.toLowerCase() === 'pending' || order.orderStatus?.toLowerCase() === 'payment_pending')
+                ? "active" 
+                : ""
+            }`}
           >
             <div className="step-circle">
-              {["PAID", "PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED"].includes(order.orderStatus) ? (
+              {order.paymentMethod === 'cod' || 
+               ['approved', 'paid', 'APPROVED', 'PAID'].includes(order.paymentStatus) || 
+               ['processing', 'shipped', 'delivered', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.orderStatus) ? (
                 <CheckCircle size={20} />
               ) : (
                 <Clock size={20} />
               )}
             </div>
-            <span>Payment</span>
+            <span>{order.paymentMethod === 'cod' ? 'Payment (COD)' : 'Payment'}</span>
           </div>
 
+          {/* 3. Processing */}
           <div
-            className={`step-item ${["PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED"].includes(order.orderStatus) ? "completed" : order.orderStatus === "PROCESSING" ? "active" : ""}`}
+            className={`step-item ${
+              ['processing', 'shipped', 'delivered', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus)
+                ? "completed" 
+                : order.orderStatus?.toLowerCase() === 'processing'
+                ? "active" 
+                : ""
+            }`}
           >
             <div className="step-circle">
-              {["PROCESSING", "SHIPPED", "DELIVERED", "COMPLETED"].includes(order.orderStatus) ? (
+              {['processing', 'shipped', 'delivered', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus) ? (
                 <CheckCircle size={20} />
               ) : (
                 <Package size={20} />
@@ -232,11 +261,18 @@ const OrderDetails = () => {
             <span>Processing</span>
           </div>
 
+          {/* 4. Shipped */}
           <div
-            className={`step-item ${["SHIPPED", "DELIVERED", "COMPLETED"].includes(order.orderStatus) ? "completed" : order.orderStatus === "SHIPPED" ? "active" : ""}`}
+            className={`step-item ${
+              ['shipped', 'delivered', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus)
+                ? "completed" 
+                : order.orderStatus?.toLowerCase() === 'shipped'
+                ? "active" 
+                : ""
+            }`}
           >
             <div className="step-circle">
-              {["SHIPPED", "DELIVERED", "COMPLETED"].includes(order.orderStatus) ? (
+              {['shipped', 'delivered', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus) ? (
                 <Truck size={20} />
               ) : (
                 <Truck size={20} style={{ opacity: 0.5 }} />
@@ -245,11 +281,16 @@ const OrderDetails = () => {
             <span>Shipped</span>
           </div>
 
+          {/* 5. Delivered */}
           <div
-            className={`step-item ${["DELIVERED", "COMPLETED"].includes(order.orderStatus) ? "completed" : ""}`}
+            className={`step-item ${
+              ['delivered', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus)
+                ? "completed" 
+                : ""
+            }`}
           >
             <div className="step-circle">
-              {["DELIVERED", "COMPLETED"].includes(order.orderStatus) ? (
+              {['delivered', 'DELIVERED', 'COMPLETED'].includes(order.orderStatus) ? (
                 <CheckCircle size={20} />
               ) : (
                 <CheckCircle size={20} style={{ opacity: 0.5 }} />
@@ -409,6 +450,8 @@ const OrderDetails = () => {
                           src={getAssetUrl(order.paymentProof, API_URL)}
                           alt="Payment Proof"
                           className="proof-image"
+                          onClick={() => window.open(getAssetUrl(order.paymentProof, API_URL), '_blank')}
+                          title="Click to view full size"
                         />
                       </div>
                     </div>
@@ -428,17 +471,33 @@ const OrderDetails = () => {
                     </div>
                   )}
                 </div>
+
+                {/* WhatsApp Action Button */}
+                <div className="whatsapp-action">
+                  <h4>Need Help with Your Order?</h4>
+                  <button
+                    onClick={() => {
+                      const whatsappNumber = '923453450644'; 
+                      const message = `Hello! I need help with my order.\\n\\nOrder ID: ${order._id.slice(-8)}\\nOrder Number: ${order.orderNumber || 'N/A'}\\nStatus: ${formatStatus(order.orderStatus)}\\n\\nMy inquiry: `;
+                      const encodedMessage = encodeURIComponent(message);
+                      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+                      window.open(whatsappUrl, '_blank');
+                    }}
+                  >
+                    <MessageCircle size={20} />
+                    Contact Support on WhatsApp
+                  </button>
+                </div>
               </div>
             </Card>
 
-            {/* WhatsApp Inquiry Button */}
             <Card className="whatsapp-inquiry-card" padding="large">
               <div className="inquiry-header">
-                <MessageCircle size={24} className="text-success" />
-                <h3>Need Help with Your Order?</h3>
+                <MessageCircle size={20} className="text-success" />
+                <h3>Need Help?</h3>
               </div>
-              <p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-                Have questions about your order? Contact our support team on WhatsApp for quick assistance.
+              <p style={{ color: '#065f46', marginBottom: '1rem', fontSize: '13px', lineHeight: '1.6' }}>
+                Contact our support team on WhatsApp for quick assistance.
               </p>
               <Button
                 variant="primary"

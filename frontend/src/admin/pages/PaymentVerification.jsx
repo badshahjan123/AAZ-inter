@@ -229,6 +229,17 @@ const PaymentVerification = () => {
                         src={getAssetUrl(payment.paymentProof, API_URL)}
                         alt="Payment Proof"
                         className="proof-thumbnail"
+                        onError={(e) => {
+                          console.error('Failed to load payment proof:', {
+                            originalPath: payment.paymentProof,
+                            constructedUrl: getAssetUrl(payment.paymentProof, API_URL),
+                            apiUrl: API_URL
+                          });
+                          e.target.style.border = '2px solid red';
+                        }}
+                        onLoad={() => {
+                          console.log('Payment proof loaded successfully:', payment.paymentProof);
+                        }}
                       />
                     </div>
                   )}
@@ -305,6 +316,17 @@ const PaymentVerification = () => {
                       src={getAssetUrl(selectedOrder.paymentProof, API_URL)}
                       alt="Payment Proof"
                       className="proof-image"
+                      onError={(e) => {
+                        console.error('Failed to load modal payment proof:', {
+                          originalPath: selectedOrder.paymentProof,
+                          constructedUrl: getAssetUrl(selectedOrder.paymentProof, API_URL),
+                          apiUrl: API_URL
+                        });
+                        e.target.style.border = '2px solid red';
+                      }}
+                      onLoad={() => {
+                        console.log('Modal payment proof loaded successfully:', selectedOrder.paymentProof);
+                      }}
                     />
                   </div>
                 ) : (

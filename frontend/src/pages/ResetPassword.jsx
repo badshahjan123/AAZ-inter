@@ -7,7 +7,7 @@ import './Login.css';
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
-  const { resetPasswordSec } = useAuth();
+  const { resetPassword } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     password: '',
@@ -16,6 +16,10 @@ const ResetPassword = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // 2FA States
+  const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+  const [otpToken, setOtpToken] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,12 +34,16 @@ const ResetPassword = () => {
 
     setLoading(true);
     setError('');
-    const result = await resetPasswordSec(token, formData.password);
+    const result = await resetPassword(token, formData.password, otpToken);
     setLoading(false);
 
     if (result.success) {
-      setSuccess(true);
-      setTimeout(() => navigate('/login'), 3000);
+      if (result.twoFactorRequired) {
+        setTwoFactorRequired(true);
+      } else {
+        setSuccess(true);
+        setTimeout(() => navigate('/login'), 3000);
+      }
     } else {
       setError(result.message || 'Link expired or invalid. Please try again.');
     }
@@ -101,6 +109,28 @@ const ResetPassword = () => {
                   />
                 </div>
               </div>
+
+              {twoFactorRequired && (
+                <div className="form-group-modern animate-fade-in" style={{ marginTop: '20px', padding: '20px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <label htmlFor="otp" style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#1e293b' }}>Authenticator Code</label>
+                  <div className="input-modern-group">
+                    <CheckCircle size={18} className="input-icon-modern" />
+                    <input
+                      type="text"
+                      id="otp"
+                      placeholder="000000"
+                      maxLength="6"
+                      value={otpToken}
+                      onChange={(e) => setOtpToken(e.target.value.replace(/\D/g, ''))}
+                      required
+                      autoFocus
+                      style={{ textAlign: 'center', letterSpacing: '8px', fontSize: '1.2rem', fontWeight: 'bold' }}
+                      disabled={loading}
+                    />
+                  </div>
+                  <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#64748b' }}>Enter the 6-digit code from your app to confirm.</p>
+                </div>
+              )}
               <Button type="submit" variant="primary" fullWidth disabled={loading} className="auth-submit-btn">
                 {loading ? 'Updating...' : 'Update Password'}
               </Button>

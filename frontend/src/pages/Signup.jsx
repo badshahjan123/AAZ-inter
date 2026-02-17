@@ -14,20 +14,9 @@ const Signup = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    securityQuestion: '',
-    securityAnswer: ''
+    confirmPassword: ''
   });
   const [error, setError] = useState('');
-
-  const securityQuestions = [
-    "What was the name of your first school?",
-    "What is your mother's maiden name?",
-    "What was the name of your first pet?",
-    "What city were you born in?",
-    "What is your favorite book?",
-    "What was your childhood nickname?"
-  ];
 
   const handleChange = (e) => {
     setFormData({
@@ -39,28 +28,42 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.password || !formData.securityQuestion || !formData.securityAnswer) {
+    const { name, email, password, confirmPassword } = formData;
+    
+    // Strict Name Check
+    const nameRegex = /^[a-zA-Z][a-zA-Z\s.\-']{2,59}$/;
+    if (!nameRegex.test(name.trim())) {
+      setError('Name must start with a letter and contain only letters/spaces (min 3 chars).');
+      return;
+    }
+
+    if (!email || !password) {
       setError('Please fill in all required fields');
       return;
     }
     
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (password.length < 8) {
+      setError('Security password must be at least 8 characters long');
+      return;
+    }
+
+    // Complexity Check (Client Side)
+    const complexityRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!complexityRegex.test(password)) {
+      setError('Password must include Uppercase, Lowercase, Number and Special Character.');
       return;
     }
 
     setLoading(true);
     const result = await signup({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      securityQuestion: formData.securityQuestion,
-      securityAnswer: formData.securityAnswer
+      name: name.trim(),
+      email: email.trim(),
+      password: password
     });
     setLoading(false);
 
@@ -113,7 +116,6 @@ const Signup = () => {
                     type="text"
                     id="name"
                     name="name"
-                    placeholder="Dr. Smith / City Hospital"
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -129,7 +131,6 @@ const Signup = () => {
                     type="email"
                     id="email"
                     name="email"
-                    placeholder="name@organization.com"
                     value={formData.email}
                     onChange={handleChange}
                     required
@@ -145,7 +146,6 @@ const Signup = () => {
                     type={showPassword ? 'text' : 'password'}
                     id="password"
                     name="password"
-                    placeholder="Min 6 chars + Upper + Number + Special"
                     value={formData.password}
                     onChange={handleChange}
                     required
@@ -168,7 +168,6 @@ const Signup = () => {
                     type={showPassword ? 'text' : 'password'}
                     id="confirmPassword"
                     name="confirmPassword"
-                    placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
@@ -176,42 +175,6 @@ const Signup = () => {
                 </div>
               </div>
 
-              <div className="form-group-modern">
-                <label htmlFor="securityQuestion">Security Question</label>
-                <div className="input-modern-group">
-                  <ShieldCheck size={18} className="input-icon-modern" />
-                  <select
-                    id="securityQuestion"
-                    name="securityQuestion"
-                    value={formData.securityQuestion}
-                    onChange={handleChange}
-                    required
-                    className="select-modern"
-                  >
-                    <option value="">Select a security question</option>
-                    {securityQuestions.map((q, i) => (
-                      <option key={i} value={q}>{q}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group-modern">
-                <label htmlFor="securityAnswer">Security Answer</label>
-                <div className="input-modern-group">
-                  <Lock size={18} className="input-icon-modern" />
-                  <input
-                    type="text"
-                    id="securityAnswer"
-                    name="securityAnswer"
-                    placeholder="Your answer (Hashed securely)"
-                    value={formData.securityAnswer}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <p className="field-hint">Used for password recovery. Keep it safe.</p>
-              </div>
 
               <Button 
                 type="submit" 

@@ -1,4 +1,5 @@
 const Category = require('../models/Category');
+const Product = require('../models/Product');
 
 // @desc    Get all categories
 // @route   GET /api/categories
@@ -6,7 +7,34 @@ const Category = require('../models/Category');
 const getCategories = async (req, res, next) => {
   try {
     const categories = await Category.find({});
-    res.json(categories);
+    
+    // Efficiently get product counts for all categories in one query
+    const counts = await Product.aggregate([
+      { 
+        $match: { 
+          $or: [
+            { isActive: true }, 
+            { isActive: { $exists: false } }
+          ] 
+        } 
+      },
+      { $group: { _id: '$category', count: { $sum: 1 } } }
+    ]);
+
+    // Create a map for quick lookup
+    const countMap = counts.reduce((acc, curr) => {
+      if (curr._id) {
+        acc[curr._id.toString()] = curr.count;
+      }
+      return acc;
+    }, {});
+
+    const categoriesWithCount = categories.map(cat => ({
+      ...cat.toObject(),
+      productCount: countMap[cat._id.toString()] || 0
+    }));
+    
+    res.json(categoriesWithCount);
   } catch (error) {
     next(error);
   }

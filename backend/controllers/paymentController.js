@@ -79,8 +79,8 @@ const uploadPaymentProof = async (req, res, next) => {
       throw new Error("This order does not use bank transfer payment");
     }
 
-    // Check if order is in CREATED status (ready for payment)
-    if (order.orderStatus !== "CREATED") {
+    // Check if order is in pending status (ready for payment)
+    if (!['pending', 'CREATED', 'PAYMENT_PENDING'].includes(order.orderStatus)) {
       fs.unlinkSync(req.file.path);
       res.status(400);
       throw new Error(
@@ -88,12 +88,12 @@ const uploadPaymentProof = async (req, res, next) => {
       );
     }
 
-    // Store payment proof
-    const relativeFilePath = `uploads/payment-proofs/${req.file.filename}`;
+    // Store payment proof (with leading slash for URL serving)
+    const relativeFilePath = `/uploads/payment-proofs/${req.file.filename}`;
     order.transactionId = transactionId.trim();
     order.paymentProof = relativeFilePath;
-    order.orderStatus = "PAYMENT_PENDING"; // Single source of truth
-    order.paymentStatus = "PENDING"; // Payment-specific status
+    order.orderStatus = "pending"; // Awaiting admin verification
+    order.paymentStatus = "pending"; // Payment awaiting approval
     order.verificationStatus = "PENDING"; // Waiting for admin verification
 
     await order.save();
@@ -145,6 +145,7 @@ const getPendingPayments = async (req, res, next) => {
   try {
     const orders = await Order.find({
       paymentMethod: "bank",
+      orderStatus: "pending",
       verificationStatus: "PENDING",
     })
       .populate("user", "name email phone")
@@ -198,13 +199,13 @@ const approvePayment = async (req, res, next) => {
       throw new Error("Payment proof or transaction ID missing");
     }
 
-    // Update order - THIS IS THE ONLY PLACE WHERE PAYMENT APPROVAL HAPPENS
+    // Update order - ONLY UPDATE PAYMENT STATUS, NOT ORDER STATUS
     order.verificationStatus = "APPROVED";
-    order.orderStatus = "PAID"; // Single source of truth
-    order.paymentStatus = "PAID"; // Payment-specific status
+    order.paymentStatus = "approved"; // Payment verified and approved
     order.verifiedBy = req.admin._id; // Admin who verified
     order.verifiedAt = new Date();
     order.paidAt = new Date();
+    // orderStatus remains unchanged - admin manages it separately
 
     await order.save();
 
@@ -267,15 +268,15 @@ const rejectPayment = async (req, res, next) => {
       );
     }
 
-    // Update order
+    // Update order - ONLY UPDATE PAYMENT STATUS, NOT ORDER STATUS
     order.verificationStatus = "REJECTED";
     order.rejectionReason = reason || "No reason provided";
     order.verifiedBy = req.admin._id; // Admin who rejected
     order.verifiedAt = new Date();
 
-    // Keep order status as PAYMENT_PENDING (user can re-upload)
-    order.orderStatus = "PAYMENT_PENDING";
-    order.paymentStatus = "PENDING"; // Reset payment status for re-upload
+    // Set payment status to rejected
+    order.paymentStatus = "rejected"; // Payment rejected
+    // orderStatus remains unchanged - admin manages it separately
 
     await order.save();
 

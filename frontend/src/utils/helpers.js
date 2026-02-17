@@ -113,7 +113,7 @@ export const getAssetUrl = (path, baseUrl) => {
   // 3. Ensure a single leading slash for the relative path
   const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
   
-  // 4. Combine with base URL
-  const base = (baseUrl || '').replace(/\/$/, '');
+  // 4. Combine with base URL (use production URL if available)
+  const base = (baseUrl || 'https://aaz-inter-production.up.railway.app').replace(/\/$/, '');
   return `${base}${normalizedPath}`;
 };

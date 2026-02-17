@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
   Truck,
@@ -29,7 +29,7 @@ const OrderDetail = () => {
       });
       const data = await response.json();
       setOrder(data);
-      setNewStatus(data.orderStatus || "CREATED");
+      setNewStatus(data.orderStatus || "pending");
     } catch (error) {
       console.error("Error fetching order:", error);
     } finally {
@@ -37,7 +37,8 @@ const OrderDetail = () => {
     }
   };
 
-  // Removed handleVerifyPayment (Bank Transfer verification)
+  // Payment verification is now handled in the dedicated Payment Verification page
+  // Only order workflow status (pending -> processing -> shipped) is managed here
 
   const handleStatusUpdate = async () => {
     try {
@@ -157,20 +158,55 @@ const OrderDetail = () => {
             <Truck size={20} className="text-gray-500" />
             <h3 className="font-bold">Order Management</h3>
           </div>
+          
+          {/* Payment Status Display */}
+          <div className="admin-form-group" style={{ marginBottom: "1rem" }}>
+            <label className="admin-label">Payment Status</label>
+            <div style={{ padding: "0.5rem 0" }}>
+              <span className={`status-badge status-${order.paymentStatus || 'pending'}`} 
+                    style={{ 
+                      display: 'inline-flex',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      textTransform: 'capitalize',
+                      backgroundColor: 
+                        order.paymentStatus === 'approved' || order.paymentStatus === 'paid' ? '#dcfce7' : 
+                        order.paymentStatus === 'rejected' || order.paymentStatus === 'failed' ? '#fee2e2' : '#fef9c3',
+                      color: 
+                        order.paymentStatus === 'approved' || order.paymentStatus === 'paid' ? '#166534' : 
+                        order.paymentStatus === 'rejected' || order.paymentStatus === 'failed' ? '#991b1b' : '#854d0e'
+                    }}>
+                {order.paymentStatus || 'pending'}
+              </span>
+              {order.paymentMethod === 'bank' && order.paymentStatus === 'pending' && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#64748b' }}>
+                  <p>Go to <Link to="/admin/payment-verification" style={{ color: '#3b82f6', textDecoration: 'underline' }}>Payment Verification</Link> page to approve/reject bank transfers.</p>
+                </div>
+              )}
+              {order.paymentStatus === 'rejected' && order.rejectionReason && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#ef4444' }}>
+                  <strong>Rejection Reason:</strong> {order.rejectionReason}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Order Status Update */}
           <div className="admin-form-group">
-            <label className="admin-label">Update Status</label>
+            <label className="admin-label">Update Order Status</label>
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
                 className="admin-select"
               >
-                {/* Note: PAID status can only be set via Payment Verification page */}
-                <option value="PENDING">Pending</option>
-                <option value="PROCESSING">Processing</option>
-                <option value="SHIPPED">Shipped</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="CANCELLED">Cancelled</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
               </select>
               <button
                 onClick={handleStatusUpdate}
@@ -180,6 +216,9 @@ const OrderDetail = () => {
                 {updating ? "Updating..." : "Update"}
               </button>
             </div>
+            <small style={{ color: "#64748b", fontSize: "0.875rem", marginTop: "0.5rem", display: "block" }}>
+              Order workflow status. Payment verification is handled separately.
+            </small>
           </div>
         </div>
 

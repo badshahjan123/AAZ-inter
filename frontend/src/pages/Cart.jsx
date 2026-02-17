@@ -1,198 +1,246 @@
-import { useNavigate, Link } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Shield, Truck, CreditCard, ChevronRight } from 'lucide-react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Shield, Truck, CreditCard, ChevronRight, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { formatPrice, products } from '../data/products';
 import Button from '../components/common/Button';
-import Card from '../components/common/Card';
 import ProductCard from '../components/product/ProductCard';
 import './Cart.css';
 import { API_URL } from '../config/api';
 
 const Cart = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, getCartCount } = useCart();
+  const { user } = useAuth();
 
   const handleCheckout = () => {
-    navigate('/checkout');
+    if (!user) {
+      navigate('/login', { state: { from: '/checkout' } });
+    } else {
+      navigate('/checkout');
+    }
   };
 
-  // Get 4 random products for "You Might Also Like"
-  // In a real app, this would be based on category or recommendation engine
+  const fromProfile = location.state?.from === 'profile';
+
   const suggestedProducts = products
     .filter(p => !cartItems.find(item => item.id === p.id))
     .slice(0, 4);
 
-  if (cartItems.length === 0) {
-    return (
-      <div className="cart-page">
-        <div className="container">
-          <div className="cart-empty">
-            <ShoppingBag size={64} />
-            <h2>Your cart is empty</h2>
-            <p>Add some products to get started</p>
-            <Button
-              variant="primary"
-              size="large"
-              icon={<ArrowRight size={20} />}
-              onClick={() => navigate('/products')}
-            >
-              Browse Products
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="cart-page">
-      <div className="container">
-        {/* Breadcrumbs */}
-        <nav className="breadcrumbs" style={{marginBottom: '2rem'}}>
-          <Link to="/">Home</Link>
-          <ChevronRight size={14} />
-          <span className="current-crumb">Shopping Cart</span>
-        </nav>
+      <div className="cart-container">
+        {/* Breadcrumbs & Back Button */}
+        <div className="cart-nav-header">
+          <button className="back-nav-btn" onClick={() => navigate(-1)}>
+            <ArrowRight size={16} style={{ transform: 'rotate(180deg)' }} />
+            <span>Go Back</span>
+          </button>
+          <nav className="breadcrumbs">
+            <Link to="/">Home</Link>
+            <ChevronRight size={14} />
+            {fromProfile && (
+              <>
+                <Link to="/profile">Profile</Link>
+                <ChevronRight size={14} />
+              </>
+            )}
+            <span className="current-crumb">Shopping Cart</span>
+          </nav>
+        </div>
 
-        <h1 className="cart-title">Shopping Cart ({getCartCount()} items)</h1>
-
-        <div className="cart-layout">
-          {/* Cart Items */}
-          <div className="cart-items">
-            {cartItems.map((item, index) => (
-              <Card key={`cart-item-${item.id || item._id || index}`} className="cart-item" padding="medium">
-                <div className="cart-item-image">
-                  <img
-                    src={(() => {
-                      let imgSrc = item.image;
-                      if (!imgSrc) return `https://via.placeholder.com/150x150/0A74DA/FFFFFF?text=${encodeURIComponent(item.name.substring(0, 10))}`;
-                      
-                      imgSrc = imgSrc.replace(/\\/g, '/');
-                      
-                      if (imgSrc.includes('localhost')) {
-                        const pathPart = imgSrc.split(/localhost:\d+/)[1] || imgSrc;
-                        return `${API_URL}${pathPart.startsWith('/') ? pathPart : '/' + pathPart}`;
-                      }
-                      
-                      if (imgSrc.startsWith('/uploads') || imgSrc.startsWith('uploads/')) {
-                        const cleanPath = imgSrc.startsWith('/') ? imgSrc : `/${imgSrc}`;
-                        return `${API_URL}${cleanPath}`;
-                      }
-                      return imgSrc;
-                    })()}
-                    alt={item.name}
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/150?text=No+Img'}
-                  />
-                </div>
-
-                <div className="cart-item-details">
-                  <h3 className="cart-item-name">{item.name}</h3>
-                  <p className="cart-item-sku">SKU: {item.sku}</p>
-                  <p className="cart-item-price">{formatPrice(item.price)}</p>
-                </div>
-
-                <div className="cart-item-quantity">
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    className="quantity-btn"
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus size={16} />
-                  </button>
-                  <span className="quantity-value">{item.quantity}</span>
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="quantity-btn"
-                    aria-label="Increase quantity"
-                  >
-                    <Plus size={16} />
-                  </button>
-                </div>
-
-                <div className="cart-item-total">
-                  <p className="item-total-price">{formatPrice(item.price * item.quantity)}</p>
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="remove-btn"
-                    aria-label="Remove item"
-                  >
-                    <Trash2 size={18} />
-                    Remove
-                  </button>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          {/* Cart Summary */}
-          <div className="cart-summary-wrapper">
-            <Card className="cart-summary" padding="large">
-              <h2 className="summary-title">Order Summary</h2>
-
-              <div className="summary-row">
-                <span>Subtotal ({getCartCount()} items)</span>
-                <span className="summary-value">{formatPrice(getCartTotal())}</span>
+        {cartItems.length === 0 ? (
+          <div className="cart-empty-medical">
+            <div className="cart-empty-card">
+              <div className="medical-icon-pulse">
+                <ShoppingBag size={48} className="base-icon" />
               </div>
-              
-              <div className="summary-row">
-                <span>Shipping</span>
-                <span className="summary-value success-text">Free</span>
+              <h2>Your medical cart is empty</h2>
+              <p>You haven't added any professional medical equipment or surgical supplies yet.</p>
+              <div className="cart-empty-actions">
+                <Button
+                  variant="primary"
+                  size="large"
+                  icon={<ArrowRight size={20} />}
+                  onClick={() => navigate('/products')}
+                >
+                  Go to Equipment Catalog
+                </Button>
               </div>
-              
-              <div className="summary-row">
-                <span>Tax</span>
-                <span className="summary-value">Calculated at checkout</span>
-              </div>
+            </div>
 
-              <div className="summary-divider"></div>
-
-              <div className="summary-row summary-total">
-                <span>Total</span>
-                <span className="summary-total-value">{formatPrice(getCartTotal())}</span>
-              </div>
-
-              <Button
-                variant="primary"
-                size="large"
-                fullWidth
-                icon={<ArrowRight size={20} />}
-                onClick={handleCheckout}
-                className="checkout-btn-pulse"
-              >
-                Proceed to Checkout
-              </Button>
-
-              <div className="cart-trust-badges">
+            <div className="medical-quick-shop">
+              <h3 className="quick-shop-title">Quick Shop By Category</h3>
+              <div className="quick-shop-grid">
                 {[
-                  { key: 'secure', icon: <Shield size={16} />, text: 'Secure Checkout' },
-                  { key: 'shipping', icon: <Truck size={16} />, text: 'Fast Shipping' },
-                  { key: 'payment', icon: <CreditCard size={16} />, text: 'Encrypted Payment' }
-                ].map(badge => (
-                  <div key={badge.key} className="cart-trust-item">
-                    {badge.icon}
-                    <span>{badge.text}</span>
+                  { name: 'Hospital Furniture', icon: <Package size={24} />, color: '#0ea5e9' },
+                  { name: 'Surgical Instruments', icon: <Plus size={24} />, color: '#06b6d4' },
+                  { name: 'Clinical Supplies', icon: <Shield size={24} />, color: '#10b981' },
+                  { name: 'Diagnostics', icon: <Minus size={24} />, color: '#3b82f6' }
+                ].map((cat, i) => (
+                  <div key={i} className="quick-cat-card" onClick={() => navigate('/products')}>
+                    <div className="cat-icon" style={{ color: cat.color }}>{cat.icon}</div>
+                    <span>{cat.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="cart-header-modern">
+              <div className="title-group-modern">
+                <h1 className="cart-title-modern">Shopping Cart</h1>
+                <span className="cart-subtitle-modern">Procurement Inventory</span>
+              </div>
+              <div className="cart-status-badge">
+                <div className="status-dot"></div>
+                {getCartCount()} Items Selected
+              </div>
+            </div>
+
+            <div className="cart-frame-modern">
+              <div className="cart-scroll-area">
+                {cartItems.map((item, index) => (
+                  <div key={`cart-item-${item.id || item._id || index}`} className="cart-item-modern">
+                    <div className="item-image-box">
+                      <img
+                        src={(() => {
+                          let imgSrc = item.image;
+                          if (!imgSrc) return `https://via.placeholder.com/150x150/0A74DA/FFFFFF?text=${encodeURIComponent(item.name.substring(0, 10))}`;
+                          imgSrc = imgSrc.replace(/\\/g, '/');
+                          if (imgSrc.includes('localhost')) {
+                            const pathPart = imgSrc.split(/localhost:\d+/)[1] || imgSrc;
+                            return `${API_URL}${pathPart.startsWith('/') ? pathPart : '/' + pathPart}`;
+                          }
+                          if (imgSrc.startsWith('/uploads') || imgSrc.startsWith('uploads/')) {
+                            const cleanPath = imgSrc.startsWith('/') ? imgSrc : `/${imgSrc}`;
+                            return `${API_URL}${cleanPath}`;
+                          }
+                          return imgSrc;
+                        })()}
+                        alt={item.name}
+                      />
+                    </div>
+
+                    <div className="item-info-box">
+                      <div className="item-main-details">
+                        <span className="item-cat-label">Medical Supply</span>
+                        <h3 className="item-name-modern">{item.name}</h3>
+                        <span className="item-sku-modern">ID: {item.sku || 'N/A'}</span>
+                      </div>
+
+                      <div className="item-interaction-grid">
+                        <div className="item-pricing-box">
+                          <span className="unit-price-label">Unit Price</span>
+                          <span className="unit-price-value">{formatPrice(item.price)}</span>
+                        </div>
+
+                        <div className="item-qty-selector">
+                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1} className="qty-act-btn">
+                            <Minus size={14} />
+                          </button>
+                          <span className="qty-val-display">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="qty-act-btn">
+                            <Plus size={14} />
+                          </button>
+                        </div>
+
+                        <div className="item-sub-box">
+                          <span className="sub-label-modern">Subtotal</span>
+                          <span className="sub-amount-modern">{formatPrice(item.price * item.quantity)}</span>
+                        </div>
+
+                        <button onClick={() => removeFromCart(item.id)} className="item-delete-btn" title="Remove Item">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <Button
-                variant="outline"
-                size="medium"
-                fullWidth
-                onClick={() => navigate('/products')}
-                className="continue-shopping-btn"
-              >
-                Continue Shopping
-              </Button>
-            </Card>
-          </div>
-        </div>
+              <div className="cart-summary-frame">
+                <div className="summary-card-modern">
+                  <div className="summary-header">
+                    <h2 className="summary-title-modern">Order Summary</h2>
+                    <div className="id-badge">ID: AAZ-{Math.floor(1000 + Math.random() * 9000)}</div>
+                  </div>
+
+                  <div className="summary-stats-grid">
+                    <div className="stat-row">
+                      <span className="stat-label">Subtotal</span>
+                      <span className="stat-value">{formatPrice(getCartTotal())}</span>
+                    </div>
+                    <div className="stat-row">
+                      <span className="stat-label">Shipping</span>
+                      <span className="stat-value highlight-success">Free</span>
+                    </div>
+                    <div className="stat-row">
+                      <span className="stat-label">Taxes</span>
+                      <span className="stat-value">Included</span>
+                    </div>
+                  </div>
+
+                  <div className="grand-total-section">
+                    <div className="total-meta">Final Amount Payable</div>
+                    <div className="total-value-modern">{formatPrice(getCartTotal())}</div>
+                  </div>
+
+                  <div className="cart-action-group">
+                    <button className="primary-checkout-btn" onClick={handleCheckout}>
+                      <span>Proceed to Final Checkout</span>
+                      <ArrowRight size={20} />
+                    </button>
+                    <button className="secondary-continue-btn" onClick={() => navigate('/products')}>
+                      Add More Items
+                    </button>
+                  </div>
+
+                  <div className="trust-meter-modern">
+                    <div className="trust-item">
+                      <Shield size={14} />
+                      <span>Verified Secure Checkout</span>
+                    </div>
+                    <div className="trust-item">
+                      <Truck size={14} />
+                      <span>Expedited Medical Delivery</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="clinical-assistance-card">
+                  <div className="assistance-icon">
+                    <Plus size={20} />
+                  </div>
+                  <div className="assistance-content">
+                    <h4>Clinical Assistance</h4>
+                    <p>Support available 24/7 for health equipment queries.</p>
+                    <Link to="/contact">Chat with Expert</Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Mobile Sticky Checkout Bar */}
+            <div className="mobile-checkout-bar">
+              <div className="mobile-total-info">
+                <span className="mobile-total-label">Final Total</span>
+                <span className="mobile-total-price">{formatPrice(getCartTotal())}</span>
+              </div>
+              <button className="mobile-checkout-btn" onClick={handleCheckout}>
+                Checkout Now
+              </button>
+            </div>
+          </>
+        )}
         
         {/* Suggested Products */}
         {suggestedProducts.length > 0 && (
           <div className="cart-suggestions-section">
-            <h2 className="section-title">You Might Also Like</h2>
-            <div className="products-grid">
+            <h2 className="cart-section-title">You Might Also Like</h2>
+            <div className="cart-products-grid">
               {suggestedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

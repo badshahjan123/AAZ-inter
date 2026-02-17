@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
+import { useSocket } from '../context/SocketContext';
 import Button from '../components/common/Button';
 import { api, cachedFetch } from '../config/api';
 import './Products.css';
@@ -14,31 +15,55 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [filterOpen, setFilterOpen] = useState(false);
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000000 });
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState('featured');
+  const { socket } = useSocket();
+
+  const fetchData = async () => {
+    // Only show loading on initial fetch, not on socket updates
+    if (categories.length === 0) setLoading(true);
+    
+    try {
+      const query = new URLSearchParams();
+      const search = searchParams.get('search');
+      const category = searchParams.get('category');
+      
+      if (search) query.append('search', search);
+      if (category && category !== 'all' && category !== 'undefined' && category !== 'null') {
+        query.append('category', category);
+      }
+      
+      const [productsRes, categoriesRes] = await Promise.all([
+        fetch(api(`/api/products?${query.toString()}`)),
+        fetch(api('/api/categories'))
+      ]);
+      
+      const [productsData, categoriesData] = await Promise.all([
+        productsRes.json(),
+        categoriesRes.json()
+      ]);
+      
+      setProducts(Array.isArray(productsData) ? productsData : []);
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+    } catch (error) {
+      console.error("Products fetch error:", error);
+      setProducts([]);
+      setCategories([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [productsRes, categoriesRes] = await Promise.all([
-          cachedFetch(api('/api/products')),
-          cachedFetch(api('/api/categories'))
-        ]);
-        const [productsData, categoriesData] = await Promise.all([
-          productsRes.json(),
-          categoriesRes.json()
-        ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
-      } catch (error) {
-        // Error handled silently
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
-  }, []);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('analyticsUpdate', fetchData);
+      return () => socket.off('analyticsUpdate', fetchData);
+    }
+  }, [socket, searchParams]);
 
   useEffect(() => {
     setSelectedCategory(searchParams.get('category') || 'all');
@@ -53,7 +78,8 @@ const Products = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    let filtered = products;
+    if (!Array.isArray(products)) return [];
+    let filtered = [...products];
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -63,10 +89,6 @@ const Products = () => {
       );
     }
 
-    filtered = filtered.filter(p => {
-      const price = p.price || 0;
-      return price >= priceRange.min && price <= priceRange.max;
-    });
 
     if (inStockOnly) {
       filtered = filtered.filter(p => (p.stock !== undefined ? p.stock > 0 : p.inStock));
@@ -83,7 +105,7 @@ const Products = () => {
     }
 
     return filtered;
-  }, [products, searchQuery, priceRange, inStockOnly, sortBy, selectedCategory]);
+  }, [products, searchQuery, inStockOnly, sortBy, selectedCategory]);
 
   const categoryName = useMemo(() => {
     if (searchQuery) return `Search Results for "${searchQuery}"`;
@@ -91,6 +113,10 @@ const Products = () => {
     const category = categories.find((cat) => cat._id === selectedCategory);
     return category ? category.name : 'Products';
   }, [searchQuery, selectedCategory, categories]);
+
+  const totalProductCount = useMemo(() => {
+    return categories.reduce((acc, cat) => acc + (cat.productCount || 0), 0);
+  }, [categories]);
 
   if (loading) return <div className="text-center py-20">Loading...</div>;
 
@@ -116,16 +142,9 @@ const Products = () => {
           <aside className={`products-sidebar ${filterOpen ? 'products-sidebar-open' : ''}`}>
             <div className="filter-header">
               <h2 className="filter-title">Filters</h2>
-              <button className="mobile-filter-close" onClick={() => setFilterOpen(false)} aria-label="Close">×</button>
-            </div>
-
-            <div className="filter-section">
-              <span className="filter-subtitle">Price Range (Rs.)</span>
-              <div className="filter-range-inputs">
-                <input type="number" className="filter-input" placeholder="Min" value={priceRange.min} onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))} />
-                <span className="filter-divider">-</span>
-                <input type="number" className="filter-input" placeholder="Max" value={priceRange.max} onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))} />
-              </div>
+              <button className="mobile-filter-close" onClick={() => setFilterOpen(false)} aria-label="Close">
+                <X size={20} />
+              </button>
             </div>
 
             <div className="filter-section">
@@ -138,9 +157,22 @@ const Products = () => {
 
             <div className="filter-list">
               <span className="filter-subtitle" style={{ padding: '0 8px' }}>Categories</span>
-              <button className={`filter-item ${selectedCategory === 'all' ? 'filter-item-active' : ''}`} onClick={() => handleCategoryChange('all')}>All Products</button>
+              <button 
+                className={`filter-item ${selectedCategory === 'all' ? 'filter-item-active' : ''}`} 
+                onClick={() => handleCategoryChange('all')}
+              >
+                <span>All Products</span>
+                <span className="category-count">({totalProductCount})</span>
+              </button>
               {categories.map((category) => (
-                <button key={category._id} className={`filter-item ${selectedCategory === category._id ? 'filter-item-active' : ''}`} onClick={() => handleCategoryChange(category._id)}>{category.name}</button>
+                <button 
+                  key={category._id} 
+                  className={`filter-item ${selectedCategory === category._id ? 'filter-item-active' : ''}`} 
+                  onClick={() => handleCategoryChange(category._id)}
+                >
+                  <span>{category.name}</span>
+                  <span className="category-count">({category.productCount || 0})</span>
+                </button>
               ))}
             </div>
           </aside>

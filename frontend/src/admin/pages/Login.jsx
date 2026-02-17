@@ -57,7 +57,6 @@ const AdminLogin = () => {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="admin@aazinternational.com"
                                     disabled={loading}
                                 />
                             </div>
@@ -73,7 +72,6 @@ const AdminLogin = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
                                     disabled={loading}
                                 />
                             </div>

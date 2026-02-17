@@ -1,100 +1,191 @@
-/* Services Page Styles */
+/* ========================================
+   SERVICES PAGE - HIGH DENSITY ERP THEME
+   Professional Medical Portal Aesthetic
+   ======================================== */
+
 .services-page {
-  padding: 4rem 0;
-  background-color: var(--bg-light);
-  min-height: 80vh;
+  background-color: var(--color-background);
+  min-height: calc(100vh - 70px);
+  padding: 32px 0 64px;
 }
 
-.services-hero {
-  text-align: center;
-  margin-bottom: 4rem;
-  padding: 0 1rem;
+/* --- Professional Header --- */
+.services-header-modern {
+  margin-bottom: 32px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 24px;
 }
 
-.services-hero h1 {
-  font-size: 2.5rem;
-  color: var(--primary-dark);
-  margin-bottom: 1rem;
-  font-weight: 700;
+.services-header-modern h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
 }
 
-.services-hero p {
-  color: var(--text-muted);
-  font-size: 1.1rem;
+.services-header-modern p {
+  font-size: 15px;
+  color: #64748b;
   max-width: 600px;
-  margin: 0 auto;
 }
 
-.services-section {
-  padding: 4rem 0;
-  border-bottom: 1px solid var(--border-light);
-  scroll-margin-top: 100px; /* Offset for sticky header */
-}
-
-.services-section:last-child {
-  border-bottom: none;
-}
-
-.section-content {
+/* --- High Density Grid --- */
+.services-grid-erp {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  align-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
 }
 
-@media (min-width: 768px) {
-  .section-content {
-    grid-template-columns: 1fr 1fr;
-  }
+.service-card-erp {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
-.section-text h2 {
-  font-size: 1.8rem;
-  color: var(--primary);
-  margin-bottom: 1rem;
+.service-card-erp:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* --- Card Header --- */
+.card-head-erp {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.service-icon {
-  color: var(--primary-light);
-}
-
-.section-text p {
-  color: var(--text-dark);
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-}
-
-.service-features {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.service-features li {
+.card-icon-box {
+  width: 42px;
+  height: 42px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border-radius: 8px;
   display: flex;
-  align-items: start;
-  gap: 0.75rem;
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
-  font-size: 0.95rem;
-}
-
-.feature-icon {
-  color: var(--success);
-  margin-top: 0.25rem;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.section-image {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 250px;
+.card-head-erp h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 }
+
+/* --- Card Content --- */
+.card-desc-erp {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #64748b;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+/* --- Feature List (Dense) --- */
+.card-features-erp {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+}
+
+.feature-item-erp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.feature-check-erp {
+  color: #10b981;
+}
+
+/* --- Meta Tag --- */
+.service-tag-erp {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .services-grid-erp {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .services-page {
+    padding: 24px 0 48px;
+  }
+
+  .services-header-modern {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+  }
+
+  .services-header-modern p {
+    margin: 0 auto;
+  }
+
+  .services-grid-erp {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-header-modern h1 {
+    font-size: 22px;
+  }
+
+  .services-header-modern p {
+    font-size: 14px;
+  }
+
+  .service-card-erp {
+    padding: 16px;
+  }
+
+  .card-head-erp h3 {
+    font-size: 16px;
+    padding-right: 60px; /* Avoid overlap with absolute tag */
+  }
+
+  .service-tag-erp {
+    top: 10px;
+    right: 10px;
+    font-size: 9px;
+  }
+
+  .card-icon-box {
+    width: 36px;
+    height: 36px;
+  }
+}
+
