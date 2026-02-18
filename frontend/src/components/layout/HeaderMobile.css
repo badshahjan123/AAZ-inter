@@ -68,13 +68,24 @@
   .cart-btn-modern,
   .wishlist-btn-modern,
   .mobile-toggle-modern {
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     background-color: transparent;
     border: none;
     box-shadow: none;
-    color: #475569;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .notification-btn-modern svg,
+  .cart-btn-modern svg,
+  .wishlist-btn-modern svg,
+  .mobile-toggle-modern svg {
+    width: 24px !important;
+    height: 24px !important;
   }
   
   .mobile-toggle-modern {

@@ -340,7 +340,7 @@ const Home = () => {
       {/* Floating Technical Support Button */}
       <div 
         className="floating-support-btn"
-        onClick={() => window.open(`https://wa.me/923000000000?text=${encodeURIComponent("Hello, I need technical assistance with medical equipment.")}`, '_blank')}
+        onClick={() => window.open(`https://wa.me/923453450644?text=${encodeURIComponent("Hello, I need technical assistance with medical equipment.")}`, '_blank')}
       >
         <div className="support-tooltip">Contact Us</div>
         <Phone size={28} />
